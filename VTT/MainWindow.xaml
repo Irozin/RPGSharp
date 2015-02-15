@@ -1,0 +1,63 @@
+﻿<Window x:Class="VTT.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Virtual Tabletop" Height="768" Width="1280" MouseLeftButtonDown="Window_MouseLeftButtonDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+    <Grid>
+        <Menu Name="Menu" IsMainMenu="True" Height="25" Width="1280" VerticalAlignment="Top" BorderThickness="0">
+            <MenuItem Header="File">
+                <MenuItem Header="Map">
+                    <MenuItem Header="New" Click="CreateMapBtn" />
+                </MenuItem>
+                <MenuItem Name="GraphicsItems" Header="Graphics">
+                    <MenuItem Header="Add" Click="AddGraphicsClick"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit">
+            </MenuItem>
+            <MenuItem Header="Game">
+                <MenuItem Header="Host" Click="HostGame"/>
+                <MenuItem Header="Join" Click="JoinGameSettings"/>
+                <MenuItem Header="Stop hosting" Click="StopHosting" />
+            </MenuItem>
+        </Menu>
+        <ListView Name="GraphicsList" HorizontalAlignment="Left" Margin="0,95,0,250" VerticalAlignment="Stretch" Width="130" IsSynchronizedWithCurrentItem="True">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <GroupBox Header="Image options" HorizontalAlignment="Left" Height="240" Margin="0,490,0,0" VerticalAlignment="Top" Width="130">
+            <StackPanel HorizontalAlignment="Left" Margin="0,10,-2,3" Width="120">
+                <CheckBox Name="tokenCB" Content="Token" Height="20" Checked="tokenCB_Checked"/>
+                <CheckBox Name="tileCB" Content="Tile" Height="20" Checked="tileCB_Checked"/>
+                <CheckBox x:Name="paintCheck" Content="Paint" Height="20"  Checked="paintCheck_Checked"/>
+                <CheckBox x:Name="deleteTileCheck" Content="Delete" Height="20"  Checked="deleteTileCheck_Checked"/>
+                <Label Content="Layer mode:" Margin="0,0,43,0"/>
+                <ComboBox x:Name="layerModeCB" Height="23" Margin="0,0,8,0"/>
+            </StackPanel>
+        </GroupBox>
+        <TreeView Name="imgFolderTree"  HorizontalAlignment="Left" Height="70" Margin="0,25,0,0" VerticalAlignment="Top" Width="130" SelectedItemChanged="ImgFolderChanged"/>
+        <StackPanel Name="chatPanel"  HorizontalAlignment="Left" Height="700" Margin="1051,27,0,0" VerticalAlignment="Top" Width="213">
+            <RichTextBox x:Name="chatBox" HorizontalAlignment="Left" Height="580" VerticalAlignment="Top" Width="203" IsReadOnly="True" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <FlowDocument>
+                    <Paragraph/>
+                </FlowDocument>
+            </RichTextBox>
+            <TextBox x:Name="chatInput" HorizontalAlignment="Left" Height="84" TextWrapping="Wrap" VerticalAlignment="Top" Width="203"/>
+            <Button x:Name="sendMsgButton" Content="Send" HorizontalAlignment="Left" Height="30" Width="203" Click="sendMsgButton_Click"/>
+        </StackPanel>
+        <ScrollViewer Name="canvasScroll" HorizontalAlignment="Left" Height="700" Margin="135,30,0,0" VerticalAlignment="Top" Width="911">
+            <Canvas Name="map" Height="0" Width="0" MouseLeftButtonDown="map_MouseLeftButtonDown" MouseMove="map_MouseMove" MouseLeftButtonUp="map_MouseLeftButtonUp" MouseRightButtonDown="map_MouseRightButtonDown"/>
+        </ScrollViewer>
+        <WrapPanel HorizontalAlignment="Left" Height="29" Margin="331,25,0,0" VerticalAlignment="Top" Width="200">
+            <WrapPanel.Resources>
+                <Style TargetType="CheckBox">
+                    <Setter Property="Margin" Value="5" />
+                </Style>
+            </WrapPanel.Resources>
+        </WrapPanel>
+
+
+    </Grid>
+</Window>
