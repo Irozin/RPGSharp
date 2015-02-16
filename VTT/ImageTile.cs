@@ -87,4 +87,17 @@ namespace VTT
             return bi;
         }
     }
+
+    [DataContract]
+    public class TileTransferCollection
+    {
+        /*TODO: change Tiles every time a tile is changed*/
+        [DataMember]
+         public List<TileToTransfer> Tiles { get; set; }
+
+        public TileTransferCollection()
+        {
+            Tiles = new List<TileToTransfer>();
+        }
+    }
 }

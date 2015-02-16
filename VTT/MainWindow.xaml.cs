@@ -17,7 +17,7 @@ namespace VTT
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext=false)]
     public partial class MainWindow : Window, IChat
     {
         #region variables
@@ -46,7 +46,7 @@ namespace VTT
         List<TileToTransfer> ListOfTiles;
         int map_height;
         int map_width;
-        //Point prevPos;
+        TileTransferCollection testList;
 
         //server variables
         MainWindow serverType = null;
@@ -161,6 +161,8 @@ namespace VTT
         private void sendMsgButton_Click(object sender, RoutedEventArgs e)
         {
             channel.SendMessage(chatInput.Text, chatClient.Name);
+            chatInput.Clear();
+            chatInput.Focus();
         }
 
         #region IChat memebers
@@ -281,48 +283,6 @@ namespace VTT
             TILE_WIDTH = tileW;
             map_height = mapH;
             map_width = mapW;
-            //CreateMap(TILE_HEIGHT, TILE_WIDTH, map_height, map_width);
-            ////this.gameMap = map;
-            //foreach (var t in rpgMap)
-            //{
-            //    //TileAdded(t);
-            //    if (t.CharSheet == false)
-            //    {
-            //        map.Children.Add(new ImageTile
-            //        {
-            //            Source = t.DeserializeImg(),
-            //            Margin = t.Margin,
-            //            Height = t.Height,
-            //            Width = t.Width,
-            //            LayerMode = t.LayerMode,
-            //            PutPosition = t.PutPosition
-            //        });
-            //    }
-            //    else
-            //    {
-            //        map.Children.Add(new TokenTile
-            //        {
-            //            Source = t.DeserializeImg(),
-            //            Margin = t.Margin,
-            //            Height = t.Height,
-            //            Width = t.Width,
-            //            LayerMode = t.LayerMode,
-            //            PutPosition = t.PutPosition,
-            //            CharSheet = new CharacterSheet()
-            //        });
-            //    }
-            //}
-            ////clients.ForEach(delegate(IChatCallback c)
-            ////{
-            ////    if (((ICommunicationObject)c).State == CommunicationState.Opened)
-            ////    {
-            ////        c.ReceiveMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
-            ////    }
-            ////    else
-            ////    {
-            ////        clients.Remove(c);
-            ////    }
-            ////});
         }
         #endregion
         #endregion
@@ -335,8 +295,12 @@ namespace VTT
             chatClient = new ChatClient("GM", chatBox, ChatClient.PlayerType.GameMaster, this);
             server.HostGame(chatClient, this, chatBox);
             channel = server.GetChannel();
+            //test
+            //MessageBox.Show((ListOfTiles.Count).ToString());
+            testList = new TileTransferCollection();
+            testList.Tiles = ListOfTiles;
             if (channel != null)
-                channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                channel.SendMap(testList.Tiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH); //ListOfTiles
         }
         
         private void StopHosting(object sender, RoutedEventArgs e)
@@ -505,22 +469,6 @@ namespace VTT
                                 temp.CharSheet.Close();
                             }
                             GameMap.Remove(t);
-                            //test
-                            //TileToTransfer tp = new TileToTransfer();
-                            //tp.SerializeImg(t.Source as BitmapImage);
-                            //tp.Margin = t.Margin;
-                            //tp.Height = t.Height;
-                            //tp.Width = t.Width;
-                            //tp.LayerMode = t.LayerMode;
-                            //tp.PutPosition = t.PutPosition;
-                            //tp.ID = t.ID;
-                            //if (t is TokenTile)
-                            //{
-                            //    tp.CharSheet = true;
-                            //}
-                            //else tp.CharSheet = false;
-                            //ListOfTiles.Remove(tp);
-                            //ListOfTiles.RemoveAll(x => x.ID == t.ID);
                             if (server != null)
                             {
                                 //channel.TileDeleted(tp);
