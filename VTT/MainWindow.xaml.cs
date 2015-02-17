@@ -59,8 +59,8 @@ namespace VTT
             DefaultImgFolderPath =
                 System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(System.IO.Directory.GetCurrentDirectory())) + "\\img";
             InitializeGraphics();
-            //InitializeImgFolderTree();
-            //InitializeCanvas();
+            InitializeVariables();
+            SetHostPlayerOptions();
         }
 
 
@@ -74,12 +74,20 @@ namespace VTT
             this.DragMove();
         }
 
+        private void InitializeVariables()
+        {
+            GameMap = new List<ImageTile>();
+            ListOfTiles = new List<TileToTransfer>();
+            map_height = 0;
+            map_width = 0;
+            server = null;
+            channel = null;
+        }
+
         #region graphics
         private void InitializeGraphics()
         {
             GraphicsItems.IsEnabled = false;
-            GameMap = new List<ImageTile>();
-            ListOfTiles = new List<TileToTransfer>();
         }
 
         private void AddGraphicsClick(object sender, RoutedEventArgs e)
@@ -295,12 +303,11 @@ namespace VTT
             chatClient = new ChatClient("GM", chatBox, ChatClient.PlayerType.GameMaster, this);
             server.HostGame(chatClient, this, chatBox);
             channel = server.GetChannel();
-            //test
-            //MessageBox.Show((ListOfTiles.Count).ToString());
             testList = new TileTransferCollection();
             testList.Tiles = ListOfTiles;
             if (channel != null)
                 channel.SendMap(testList.Tiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH); //ListOfTiles
+            SetHostPlayerOptions();
         }
         
         private void StopHosting(object sender, RoutedEventArgs e)
@@ -318,6 +325,8 @@ namespace VTT
                     clients.Remove(c);
                 }
             });
+            InitializeVariables();
+            SetHostPlayerOptions();
         }
 
         private void JoinGameSettings(object sender, RoutedEventArgs e)
@@ -331,9 +340,46 @@ namespace VTT
                 chatClient = new ChatClient(js._Name, chatBox, ChatClient.PlayerType.Player, this);
                 server.JoinGame(chatClient, this, chatBox, js._Name, js._IP, js._Port);
                 channel = server.GetChannel();
+                SetHostPlayerOptions();
             }
         }
 
+        private void DisconnectFromServer(object sender, RoutedEventArgs e)
+        {
+            server.PlayerCloseConnection();
+            InitializeVariables();
+            SetHostPlayerOptions();
+        }
+
+        private void SetHostPlayerOptions()
+        {
+            //1. No hosting/no playing
+            if (server == null)
+            {
+                MenuGamemaster.IsEnabled = true;
+                MenuHostGame.IsEnabled = true;
+                MenuStopHosting.IsEnabled = false;
+                MenuPlayer.IsEnabled = true;
+                MenuJoinGame.IsEnabled = true;
+                MenuDisconnect.IsEnabled = false;
+            }
+            //2. Hosting
+            else if (server.IsHosting())
+            {
+                MenuGamemaster.IsEnabled = true;
+                MenuHostGame.IsEnabled = false;
+                MenuStopHosting.IsEnabled = true;
+                MenuPlayer.IsEnabled = false;
+            }
+            //3. Player connected to server
+            else
+            {
+                MenuGamemaster.IsEnabled = false;
+                MenuPlayer.IsEnabled = true; 
+                MenuJoinGame.IsEnabled = false;
+                MenuDisconnect.IsEnabled = true;
+            }
+        }
         #endregion
 
         #region canvas settings

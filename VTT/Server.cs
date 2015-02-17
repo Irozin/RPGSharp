@@ -34,7 +34,6 @@ namespace VTT
         {
             try
             {
-                //host = new ServiceHost(typeof(MainWindow));
                 host = new ServiceHost(serverType);
                 host.Open();
                 InstanceContext ic = new InstanceContext(chatClient);
@@ -54,12 +53,12 @@ namespace VTT
         {
             if (host != null)
             {
-                MessageBox.Show("Server stopped successfully");
                 if (host.State != CommunicationState.Closed)
                 {
                     factory.Close();
                     host.Close();
                     serverType.Close();
+                    MessageBox.Show("Server stopped successfully");
                 }
             }
         }
@@ -74,12 +73,20 @@ namespace VTT
                 factory = new DuplexChannelFactory<IChat>(ic, "ChatClientPoint", new EndpointAddress(baseAddr));
                 channel = factory.CreateChannel();
                 channel.SubscribePlayer();
-                //channel.SendMap();
                 channel.SendMessage("*** " + chatClient.Name + " *** has joined", "Server");
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
+            }
+        }
+
+        public void PlayerCloseConnection()
+        {
+            if (factory != null)
+            {
+                factory.Close();
+                MessageBox.Show("Disconnected from the server");
             }
         }
 
