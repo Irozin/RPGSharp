@@ -74,11 +74,11 @@ namespace VTT
             if (tile.CharSheet == false)
             {
                 window.map.Children.Add(new ImageTile
-                {
-                    Source = tile.DeserializeImg(),
+                { 
                     Margin = tile.Margin,
                     Height = tile.Height,
                     Width = tile.Width,
+                    Source = tile.DeserializeImg(),
                     LayerMode = tile.LayerMode,
                     PutPosition = tile.PutPosition,
                     ID = tile.ID
@@ -88,10 +88,10 @@ namespace VTT
             {
                 window.map.Children.Add(new TokenTile
                 {
-                    Source = tile.DeserializeImg(),
                     Margin = tile.Margin,
                     Height = tile.Height,
                     Width = tile.Width,
+                    Source = tile.DeserializeImg(),
                     LayerMode = tile.LayerMode,
                     PutPosition = tile.PutPosition,
                     ID = tile.ID,

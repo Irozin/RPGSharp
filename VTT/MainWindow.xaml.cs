@@ -577,6 +577,7 @@ namespace VTT
                 tempBI.DecodePixelWidth = TILE_WIDTH;
                 tempBI.EndInit();
                 temp.Source = tempBI;
+                //temp.Source = imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex];
                 temp.Margin = new Thickness(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT, 0, 0);
                 temp.Height = TILE_HEIGHT;
                 temp.Width = TILE_WIDTH;
@@ -650,10 +651,11 @@ namespace VTT
                 map.Children.Remove(dragLine);
                 //server stuff
                 TileToTransfer temp = new TileToTransfer();
-                temp.Height = TILE_HEIGHT;//(int)dragObject.Height;
-                temp.Width = TILE_WIDTH;//(int)dragObject.Width;
+                temp.Height = dragObject.Height; //TILE_HEIGHT;//(int)
+                temp.Width = dragObject.Width; //TILE_WIDTH;//(int)
                 temp.Margin = dragObject.Margin;
                 temp.PutPosition = dragObject.PutPosition;
+                //temp.SerializeImg2(dragObject.Source as BitmapImage);
                 temp.Source = TileToTransfer.SerializeImg(dragObject.Source as BitmapImage).GetBuffer();
                 temp.ID = dragObject.ID;
                 if (server != null)

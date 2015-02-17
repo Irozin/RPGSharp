@@ -61,22 +61,14 @@ namespace VTT
         [DataMember]
         public bool CharSheet { get; set; } // false == imagetile, true == tokentile
         [DataMember]
-        public int Width { get; set; }
+        public double Width { get; set; }
         [DataMember]
-        public int Height { get; set; }
+        public double Height { get; set; }
         [DataMember]
         public Thickness Margin { get; set; }
         [DataMember]
         public int ID { get; set; }
 
-        //public void SerializeImg(BitmapImage bimg)
-        //{
-        //    System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        //    PngBitmapEncoder encoder = new PngBitmapEncoder();  
-        //    encoder.Frames.Add(BitmapFrame.Create(bimg));
-        //    encoder.Save(ms);
-        //    Source = ms.GetBuffer();
-        //}
         public static System.IO.MemoryStream SerializeImg(BitmapImage bimg)
         {
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
@@ -91,8 +83,8 @@ namespace VTT
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
             bi.StreamSource = ms;
-            bi.DecodePixelHeight = Height;
-            bi.DecodePixelWidth = Width;
+            bi.DecodePixelHeight = (int)Height;
+            bi.DecodePixelWidth = (int)Width;
             bi.EndInit();
             return bi;
         }
