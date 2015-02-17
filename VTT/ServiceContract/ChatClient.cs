@@ -44,7 +44,7 @@ namespace VTT
         {
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
-            window.CreateMap(tileH, tileW, mapH, mapW);
+            window.CreateMap(tileW, tileH, mapH, mapW);
             //this.gameMap = map;
             foreach (var t in map)
             {

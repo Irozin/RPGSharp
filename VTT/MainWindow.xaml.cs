@@ -23,10 +23,9 @@ namespace VTT
         #region variables
         public string DefaultImgFolderPath { get; set; }
         //for storing folders with images and their images
-        GraphicsProvider graphicsProvider;
         Dictionary<string, List<BitmapImage>> imgListByDir = new Dictionary<string, List<BitmapImage>>();
         
-        //for chat
+        //for networking
         ChatClient chatClient;
         private Server server;
         private IChat channel;
@@ -35,12 +34,12 @@ namespace VTT
         //test
         public List<ChatClient> clientsName { get; private set; }
         //private set
-        public int TILE_HEIGHT { get; set; }
-        public int TILE_WIDTH { get; set; }
+        private int TILE_HEIGHT;
+        private int TILE_WIDTH;
         
-        //for dragging tiles and tokens
+        //for dragging tokens
         bool isDragging = false;
-        ImageTile dragObject;
+        TokenTile dragObject;
         Line dragLine;
         List<ImageTile> GameMap;
         List<TileToTransfer> ListOfTiles;
@@ -58,7 +57,6 @@ namespace VTT
             //feel free to change this
             DefaultImgFolderPath =
                 System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(System.IO.Directory.GetCurrentDirectory())) + "\\img";
-            InitializeGraphics();
             InitializeVariables();
             SetHostPlayerOptions();
         }
@@ -85,11 +83,6 @@ namespace VTT
         }
 
         #region graphics
-        private void InitializeGraphics()
-        {
-            GraphicsItems.IsEnabled = false;
-        }
-
         private void AddGraphicsClick(object sender, RoutedEventArgs e)
         {
             /*Two ways of loading graphics:
@@ -108,7 +101,7 @@ namespace VTT
                 //add folder's name to image folders tree
                 imgFolderTree.Items.Add(System.IO.Path.GetFileName(dlg.SelectedPath));
                 //add images from given folder
-                List<BitmapImage> temp = graphicsProvider.LoadGraphics(dlg.SelectedPath);
+                List<BitmapImage> temp = GraphicsProvider.LoadGraphics(dlg.SelectedPath);
                 imgListByDir.Add(
                     System.IO.Path.GetFileName(dlg.SelectedPath),
                     temp
@@ -120,8 +113,9 @@ namespace VTT
         /// Loads all images in default folder and all images in its subfolders;
         /// Show default images' folders in imgFolderTree
         /// </summary>
-        private void InitializeImgFolderTree()
+        private void InitializeImgFolderTree(object sender, RoutedEventArgs e)
         {
+            MenuDefaultGraphics.IsEnabled = false;
             //check if default img folder exists
             if (System.IO.Directory.Exists(DefaultImgFolderPath))
             {
@@ -131,7 +125,7 @@ namespace VTT
                 for (int i = 0; i < dir.Length; ++i)
                 {
                     imgFolderTree.Items.Add(System.IO.Path.GetFileName(dir[i]));
-                    List<BitmapImage> temp = graphicsProvider.LoadGraphics(dir[i]);
+                    List<BitmapImage> temp = GraphicsProvider.LoadGraphics(dir[i]);
                     imgListByDir.Add(
                         System.IO.Path.GetFileName(dir[i]),
                         temp
@@ -387,6 +381,7 @@ namespace VTT
         {
             canvasScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             canvasScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            layerModeCB.Items.Clear();
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Background);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Hidden);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Normal);
@@ -433,7 +428,6 @@ namespace VTT
             if (mes._CreateMap)
             {
                 CreateMap(mes._TileWidth, mes._TileHeight, mes._MapHeight, mes._MapWidth);
-                InitializeImgFolderTree();
             }      
         }
 
@@ -445,7 +439,6 @@ namespace VTT
             map_width = mapW;
             map.Height = mapH * TILE_HEIGHT;
             map.Width = mapW * TILE_WIDTH;
-            graphicsProvider = new GraphicsProvider(TILE_HEIGHT, TILE_WIDTH);
             GraphicsItems.IsEnabled = true;
             InitializeCanvas();
             SetCanvas();
@@ -473,7 +466,6 @@ namespace VTT
                     var t = element as TokenTile;
                     if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                     {
-                        //t.CharSheet.Visibility = System.Windows.Visibility.Visible;
                         t.CharSheet.Show();
                         break;
                     }
@@ -491,7 +483,8 @@ namespace VTT
             //check if image and layer modes are selected and if we paint
             if (GraphicsList.SelectedIndex != -1 &&
                 layerModeCB.SelectedIndex != -1 &&
-                paintCheck.IsChecked == true)
+                paintCheck.IsChecked == true &&
+                (tileCB.IsChecked == true || tokenCB.IsChecked == true))
             {
                 AddTileOrToken();
             }
@@ -517,7 +510,6 @@ namespace VTT
                             GameMap.Remove(t);
                             if (server != null)
                             {
-                                //channel.TileDeleted(tp);
                                 channel.TileDeleted(t.ID);
                             }
                             break;
@@ -551,8 +543,6 @@ namespace VTT
                             dragLine.Y2 = dragLine.Y1;
                             dragLine.StrokeThickness = 2;
                             map.Children.Add(dragLine);
-                            //for server
-                            //prevPos = t.PutPosition;
                             break;
                         }
                     }
@@ -580,20 +570,26 @@ namespace VTT
             }
             if (isSelected)
             {
-                temp.Source = imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex];
+                BitmapImage tempBI = new BitmapImage();
+                tempBI.BeginInit();
+                tempBI.StreamSource = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]);
+                tempBI.DecodePixelHeight = TILE_HEIGHT;
+                tempBI.DecodePixelWidth = TILE_WIDTH;
+                tempBI.EndInit();
+                temp.Source = tempBI;
                 temp.Margin = new Thickness(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT, 0, 0);
-                temp.Height = TILE_WIDTH;
-                temp.Width = TILE_HEIGHT;
+                temp.Height = TILE_HEIGHT;
+                temp.Width = TILE_WIDTH;
                 temp.LayerMode = layerModeCB.SelectedItem.ToString();
                 temp.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
                 temp.ID = ImageTile.AssignNextID();
                 GameMap.Add(temp);
                 //test
                 TileToTransfer t = new TileToTransfer();
-                t.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]);
+                t.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
                 t.Margin = temp.Margin;
-                t.Height = temp.Height;
-                t.Width = temp.Width;
+                t.Height = (int)temp.Height;
+                t.Width = (int)temp.Width;
                 t.LayerMode = temp.LayerMode;
                 t.PutPosition = temp.PutPosition;
                 t.ID = temp.ID;
@@ -606,7 +602,6 @@ namespace VTT
                 //sending stuff
                 if (server != null)
                 {
-                    //clients.ForEach(x => x.TileAdded(t));
                     channel.TileAdded(t);
                 }
                 else
@@ -655,15 +650,14 @@ namespace VTT
                 map.Children.Remove(dragLine);
                 //server stuff
                 TileToTransfer temp = new TileToTransfer();
-                temp.Height = dragObject.Height;
-                temp.Width = dragObject.Width;
+                temp.Height = TILE_HEIGHT;//(int)dragObject.Height;
+                temp.Width = TILE_WIDTH;//(int)dragObject.Width;
                 temp.Margin = dragObject.Margin;
                 temp.PutPosition = dragObject.PutPosition;
-                temp.SerializeImg(dragObject.Source as BitmapImage);
+                temp.Source = TileToTransfer.SerializeImg(dragObject.Source as BitmapImage).GetBuffer();
                 temp.ID = dragObject.ID;
                 if (server != null)
                 {
-                    //channel.TileMoved(temp, prevPos);
                     channel.TileMoved(temp);
                 }
 

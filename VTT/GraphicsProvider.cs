@@ -6,24 +6,14 @@ using System.Windows;
 
 namespace VTT
 {
-    public class GraphicsProvider
+    public static class GraphicsProvider
     {
-        #region variables
-        private readonly int TILE_WIDTH;
-        private readonly int TILE_HEIGHT;
-        #endregion
-
-        public GraphicsProvider(int tileHeight, int tileWidth) 
-        {
-            TILE_HEIGHT = tileHeight;
-            TILE_WIDTH = tileWidth;
-        }
         /*By far it doesn't support image categories
          *(images stored in files like Tokens images
          *and Backrogund images)- all images
          *are stored in one list
          */
-        public List<BitmapImage> LoadGraphics(string path)
+        public static List<BitmapImage> LoadGraphics(string path)
         {
             //this list will be returned
             List<BitmapImage> imgList = new List<BitmapImage>();
@@ -40,8 +30,8 @@ namespace VTT
                     BitmapImage bi = new BitmapImage();
                     bi.BeginInit();
                     bi.UriSource = new Uri(img);
-                    bi.DecodePixelHeight = TILE_HEIGHT;
-                    bi.DecodePixelWidth = TILE_WIDTH;
+                    bi.DecodePixelHeight = 60; //TILE_HEIGHT;
+                    bi.DecodePixelWidth = 60;//TILE_WIDTH;
                     bi.EndInit();
                     imgList.Add(bi);
                 }

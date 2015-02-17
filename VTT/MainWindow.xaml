@@ -9,7 +9,8 @@
                     <MenuItem Header="New" Click="CreateMapBtn" />
                 </MenuItem>
                 <MenuItem Name="GraphicsItems" Header="Graphics">
-                    <MenuItem Header="Add" Click="AddGraphicsClick"/>
+                    <MenuItem Header="Load default graphics" Name="MenuDefaultGraphics" Click="InitializeImgFolderTree"/>
+                    <MenuItem Header="Add new graphics" Click="AddGraphicsClick"/>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Edit">
