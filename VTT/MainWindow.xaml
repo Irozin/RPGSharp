@@ -15,9 +15,14 @@
             <MenuItem Header="Edit">
             </MenuItem>
             <MenuItem Header="Game">
-                <MenuItem Header="Host" Click="HostGame"/>
-                <MenuItem Header="Join" Click="JoinGameSettings"/>
-                <MenuItem Header="Stop hosting" Click="StopHosting" />
+                <MenuItem Header="Gamemaster" Name="MenuGamemaster">
+                    <MenuItem Header="Host" Name="MenuHostGame" Click="HostGame"/>
+                    <MenuItem Header="Stop hosting" Name="MenuStopHosting" Click="StopHosting" />
+                </MenuItem>
+                <MenuItem Header="Player" Name="MenuPlayer">
+                    <MenuItem Header="Join" Name="MenuJoinGame" Click="JoinGameSettings"/>
+                    <MenuItem Header="Disconnect" Name="MenuDisconnect" Click="DisconnectFromServer"/>
+                </MenuItem>        
             </MenuItem>
         </Menu>
         <ListView Name="GraphicsList" HorizontalAlignment="Left" Margin="0,95,0,250" VerticalAlignment="Stretch" Width="130" IsSynchronizedWithCurrentItem="True">
