@@ -466,7 +466,7 @@ namespace VTT
                     var t = element as TokenTile;
                     if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                     {
-                        t.CharSheet.Show();
+                        MessageBox.Show("Make character sheet");
                         break;
                     }
                 }
@@ -502,11 +502,6 @@ namespace VTT
                         if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                         {
                             map.Children.Remove(t);
-                            if (t is TokenTile)
-                            {
-                                TokenTile temp = t as TokenTile;
-                                temp.CharSheet.Close();
-                            }
                             GameMap.Remove(t);
                             if (server != null)
                             {
@@ -555,61 +550,60 @@ namespace VTT
             int mouse_X = (int)(mousePos.X / TILE_WIDTH);
             int mouse_Y = (int)(mousePos.Y / TILE_HEIGHT);
 
-            bool isSelected = false;
-            ImageTile temp = null;
+            ImageTile imgToAdd = null;
 
             if (tileCB.IsChecked == true)
             {
-                temp = new ImageTile();
-                isSelected = true;
+                imgToAdd = new ImageTile();
             }
-            else if (tokenCB.IsChecked == true)
+            else
             {
-                temp = new TokenTile();
-                isSelected = true;
+                imgToAdd = new TokenTile();
             }
-            if (isSelected)
+            BitmapImage tempBI = new BitmapImage();
+            tempBI.BeginInit();
+            tempBI.StreamSource = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]);
+            tempBI.DecodePixelHeight = TILE_HEIGHT;
+            tempBI.DecodePixelWidth = TILE_WIDTH;
+            tempBI.EndInit();
+            imgToAdd.Source = tempBI;
+
+            imgToAdd.Margin = new Thickness(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT, 0, 0);
+            imgToAdd.Height = TILE_HEIGHT;
+            imgToAdd.Width = TILE_WIDTH;
+            imgToAdd.LayerMode = layerModeCB.SelectedItem.ToString();
+            imgToAdd.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
+            imgToAdd.ID = ImageTile.AssignNextID();
+            GameMap.Add(imgToAdd);
+            //test
+            TileToTransfer temp = new TileToTransfer();
+            temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
+            temp.Margin = imgToAdd.Margin;
+            temp.Height = imgToAdd.Height;
+            temp.Width = imgToAdd.Width;
+            temp.LayerMode = imgToAdd.LayerMode;
+            temp.PutPosition = imgToAdd.PutPosition;
+            temp.ID = imgToAdd.ID;
+            if (imgToAdd is TokenTile)
             {
-                BitmapImage tempBI = new BitmapImage();
-                tempBI.BeginInit();
-                tempBI.StreamSource = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]);
-                tempBI.DecodePixelHeight = TILE_HEIGHT;
-                tempBI.DecodePixelWidth = TILE_WIDTH;
-                tempBI.EndInit();
-                temp.Source = tempBI;
-                //temp.Source = imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex];
-                temp.Margin = new Thickness(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT, 0, 0);
-                temp.Height = TILE_HEIGHT;
-                temp.Width = TILE_WIDTH;
-                temp.LayerMode = layerModeCB.SelectedItem.ToString();
-                temp.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
-                temp.ID = ImageTile.AssignNextID();
-                GameMap.Add(temp);
-                //test
-                TileToTransfer t = new TileToTransfer();
-                t.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
-                t.Margin = temp.Margin;
-                t.Height = (int)temp.Height;
-                t.Width = (int)temp.Width;
-                t.LayerMode = temp.LayerMode;
-                t.PutPosition = temp.PutPosition;
-                t.ID = temp.ID;
-                if (temp is TokenTile)
-                {
-                    t.CharSheet = true;
-                }
-                else t.CharSheet = false;
-                ListOfTiles.Add(t);    
-                //sending stuff
-                if (server != null)
-                {
-                    channel.TileAdded(t);
-                }
-                else
-                {
-                    map.Children.Add(temp);
-                }
+                temp.CharSheet = true;
             }
+            else
+            {
+                temp.CharSheet = false;
+            }
+
+            ListOfTiles.Add(temp);
+            //sending stuff
+            if (server != null)
+            {
+                channel.TileAdded(temp);
+            }
+            else
+            {
+                map.Children.Add(imgToAdd);
+            }
+            
         }
         /// <summary>
         /// Drag ImageTile object in the canvas
@@ -684,22 +678,6 @@ namespace VTT
         private void tileCB_Checked(object sender, RoutedEventArgs e)
         {
             tokenCB.IsChecked = false;
-        }
-        /// <summary>
-        /// Closes all character sheets
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            foreach(var it in GameMap) //in GameMap
-            {
-                if (it is TokenTile)
-                {
-                    TokenTile temp = it as TokenTile;
-                    temp.CharSheet.Close();
-                }
-            }
         }
     }
         #endregion

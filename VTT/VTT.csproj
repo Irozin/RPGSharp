@@ -59,10 +59,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Server.cs" />
-    <Page Include="CharacterSheet.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="JoinSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -74,9 +70,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CharacterSheet.xaml.cs">
-      <DependentUpon>CharacterSheet.xaml</DependentUpon>
     </Compile>
     <Compile Include="ServiceContract\ChatClient.cs" />
     <Compile Include="GraphicsProvider.cs" />

@@ -94,8 +94,7 @@ namespace VTT
                     Source = tile.DeserializeImg(),
                     LayerMode = tile.LayerMode,
                     PutPosition = tile.PutPosition,
-                    ID = tile.ID,
-                    CharSheet = new CharacterSheet()
+                    ID = tile.ID
                 });
             }
         }

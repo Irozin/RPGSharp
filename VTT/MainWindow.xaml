@@ -1,7 +1,7 @@
 ﻿<Window x:Class="VTT.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Virtual Tabletop" Height="768" Width="1280" MouseLeftButtonDown="Window_MouseLeftButtonDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+        Title="Virtual Tabletop" Height="768" Width="1280" MouseLeftButtonDown="Window_MouseLeftButtonDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Menu Name="Menu" IsMainMenu="True" Height="25" Width="1280" VerticalAlignment="Top" BorderThickness="0">
             <MenuItem Header="File">

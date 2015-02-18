@@ -41,12 +41,7 @@ namespace VTT
 
     public class TokenTile : ImageTile
     {
-        public CharacterSheet CharSheet { get; set; }
-
-        public TokenTile()
-        {
-            CharSheet = new CharacterSheet();
-        }
+        //make struct/class for storing player's data (character sheet)
     }
 
     [DataContract]
