@@ -22,11 +22,11 @@ namespace VTT
         [OperationContract(IsOneWay = true)]
         void SendMap(List<TileToTransfer> rpgMap, int mapH, int mapW, int tileH, int tileW);
         [OperationContract(IsOneWay = true)]
-        void TileMoved(TileToTransfer tile);
+        void TileMoved(int ID, Point newPos);
         [OperationContract(IsOneWay = true)]
         void TileAdded(TileToTransfer tile);
         [OperationContract(IsOneWay = true)]
-        void TileDeleted(int ID); //TileToTransfer tile
+        void TileDeleted(int ID);
     }
     
     public interface IChatCallback
@@ -36,10 +36,10 @@ namespace VTT
         [OperationContract(IsOneWay = true)]
         void ReceiveMap(List<TileToTransfer> map, int mapH, int mapW, int tileH, int tileW);
         [OperationContract(IsOneWay = true)]
-        void ClientTileMoved(TileToTransfer tile);
+        void ClientTileMoved(int ID, Point newPos);
         [OperationContract(IsOneWay = true)]
         void ClientTileAdded(TileToTransfer tile);
         [OperationContract(IsOneWay = true)]
-        void ClientTileDeleted(int ID); //TileToTransfer tile
+        void ClientTileDeleted(int ID);
     }
 }

@@ -263,13 +263,13 @@ namespace VTT
             });
         }
 
-        public void TileMoved(TileToTransfer tile)
+        public void TileMoved(int ID, Point newPos)
         {
             clients.ForEach(delegate(IChatCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
-                    c.ClientTileMoved(tile);
+                    c.ClientTileMoved(ID, newPos);
                 }
                 else
                 {
@@ -644,17 +644,9 @@ namespace VTT
                 //delete line
                 map.Children.Remove(dragLine);
                 //server stuff
-                TileToTransfer temp = new TileToTransfer();
-                temp.Height = dragObject.Height; //TILE_HEIGHT;//(int)
-                temp.Width = dragObject.Width; //TILE_WIDTH;//(int)
-                temp.Margin = dragObject.Margin;
-                temp.PutPosition = dragObject.PutPosition;
-                //temp.SerializeImg2(dragObject.Source as BitmapImage);
-                temp.Source = TileToTransfer.SerializeImg(dragObject.Source as BitmapImage).GetBuffer();
-                temp.ID = dragObject.ID;
                 if (server != null)
                 {
-                    channel.TileMoved(temp);
+                    channel.TileMoved(dragObject.ID, dragObject.PutPosition);
                 }
 
             }

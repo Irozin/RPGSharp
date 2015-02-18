@@ -52,17 +52,17 @@ namespace VTT
             }
         }
 
-        public void ClientTileMoved(TileToTransfer tile)
+        public void ClientTileMoved(int ID, Point newPos)
         {
             foreach (var t in window.map.Children)
             {
-                if (t is ImageTile)
+                if (t is TokenTile)
                 {
-                    var temp = t as ImageTile;
-                    if (temp.ID == tile.ID)
+                    var temp = t as TokenTile;
+                    if (temp.ID == ID)
                     {
-                        temp.Margin = new Thickness(tile.PutPosition.X, tile.PutPosition.Y, 0, 0);
-                        temp.PutPosition = tile.PutPosition;
+                        temp.Margin = new Thickness(newPos.X, newPos.Y, 0, 0);
+                        temp.PutPosition = newPos;
                         break;
                     }
                 }
