@@ -33,11 +33,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <GroupBox Header="Image options" HorizontalAlignment="Left" Height="240" Margin="0,490,0,0" VerticalAlignment="Top" Width="130">
+        <GroupBox Name="ImgOptionsBox" Header="Image options" HorizontalAlignment="Left" Height="240" Margin="0,490,0,0" VerticalAlignment="Top" Width="130">
             <StackPanel HorizontalAlignment="Left" Margin="0,10,-2,3" Width="120">
                 <CheckBox Name="tokenCB" Content="Token" Height="20" Checked="tokenCB_Checked"/>
                 <CheckBox Name="tileCB" Content="Tile" Height="20" Checked="tileCB_Checked"/>
-                <CheckBox x:Name="paintCheck" Content="Paint" Height="20"  Checked="paintCheck_Checked"/>
+                <CheckBox x:Name="paintTileCheck" Content="Paint" Height="20"  Checked="paintCheck_Checked"/>
                 <CheckBox x:Name="deleteTileCheck" Content="Delete" Height="20"  Checked="deleteTileCheck_Checked"/>
                 <Label Content="Layer mode:" Margin="0,0,43,0"/>
                 <ComboBox x:Name="layerModeCB" Height="23" Margin="0,0,8,0"/>
@@ -64,10 +64,10 @@
             </WrapPanel.Resources>
         </WrapPanel>
         <WrapPanel HorizontalAlignment="Left" Height="117" Margin="130,610,0,0" VerticalAlignment="Top" Width="916">
-            <GroupBox Name="CharSheetBox" Header="Character Sheet" Height="115" Width="300">
-                <WrapPanel HorizontalAlignment="Left" Height="90" VerticalAlignment="Top" Width="290" Margin="0,0,-2,0">
+            <GroupBox Name="CharSheetBox" Header="Character Sheet" Height="115" Width="402">
+                <WrapPanel HorizontalAlignment="Left" Height="90" VerticalAlignment="Top" Width="392" Margin="0,0,-2,0">
                     <Image Name="CharPortrait" Height="85" Width="85"/>
-                    <StackPanel Width="205">
+                    <StackPanel Width="305">
                         <StackPanel.Resources>
                             <Style TargetType="WrapPanel">
                                 <Setter Property="Margin" Value="2"/>
@@ -75,17 +75,18 @@
                         </StackPanel.Resources>
                         <WrapPanel Height="24">
                             <Label Content="Name" Height="24" Width="60"/>
-                          <TextBox Name="CharName" Height="24" TextWrapping="Wrap" Width="136"/>
+                            <TextBox Name="CharName" Height="24" TextWrapping="Wrap" Width="240"/>
                         </WrapPanel>
                         <WrapPanel>
                             <Label Content="HP" Height="24" Width="60"/>
                             <TextBox Name="CharHP" Height="24" TextWrapping="Wrap" Width="40"/>
                             <Label Content="AC" Height="24"/>
                             <TextBox Name="CharAC" Height="24" TextWrapping="Wrap" Width="40"/>
-                        </WrapPanel>
-                        <WrapPanel>
                             <Label Content="Initative" Height="24"  Width="60"/>
                             <TextBox Name="CharInitiative" Height="24" TextWrapping="Wrap" Width="40"/>
+                        </WrapPanel>
+                        <WrapPanel>
+                            <ComboBox Name="CharSheetLayer" Width="100" />
                             <Button Name="CharSheetSaveBTN" Content="Save" Width="50" Click="SaveCharacterSheetBTN" />
                         </WrapPanel>
                     </StackPanel>

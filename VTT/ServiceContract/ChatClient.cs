@@ -89,6 +89,14 @@ namespace VTT
             tileToAdd.LayerMode = tile.LayerMode;
             tileToAdd.PutPosition = tile.PutPosition;
             tileToAdd.ID = tile.ID;
+
+            //check if tile is hidden- if so then hide it from player
+            if (tileToAdd.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() &&
+                this.PT == PlayerType.Player)
+            {
+                tileToAdd.Visibility = Visibility.Hidden;
+            }
+
             window.map.Children.Add(tileToAdd);
         }
 
@@ -118,6 +126,33 @@ namespace VTT
                     if (temp.ID == ID)
                     {
                         temp.CharSheet = cs;
+                        temp.LayerMode = cs.LayerMode;
+                        switch ((ImageTile.LayerModeEnum)Enum.Parse(typeof(ImageTile.LayerModeEnum), temp.LayerMode))
+                        {
+                            case ImageTile.LayerModeEnum.Background: goto case ImageTile.LayerModeEnum.Normal;
+                            case ImageTile.LayerModeEnum.Normal:
+                                {
+                                    temp.Visibility = Visibility.Visible;
+                                    break;
+                                }
+                            case ImageTile.LayerModeEnum.Hidden:
+                                {
+                                    if (this.PT == PlayerType.Player)
+                                    {
+                                        temp.Visibility = Visibility.Hidden;
+                                    }
+                                    else
+                                    {
+                                        temp.Visibility = Visibility.Visible;
+                                    }
+                                    break;
+                                }  
+                            default:
+                                {
+                                    temp.Visibility = Visibility.Visible;
+                                    break;
+                                }
+                        }
                         break;
                     }
                 }

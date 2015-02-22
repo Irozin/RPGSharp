@@ -50,6 +50,7 @@ namespace VTT
         public int HP { get; set; }
         public int ArmorClass { get; set; }
         public int Initiative { get; set; }
+        public string LayerMode { get; set; }
 
         public CharacterSheet()
         {

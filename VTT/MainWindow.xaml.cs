@@ -11,6 +11,7 @@ using System.ServiceModel.Channels;
 using System.Net;
 using System.Windows.Shapes;
 using System.Windows.Media;
+using System.Linq;
 
 namespace VTT
 {
@@ -96,6 +97,26 @@ namespace VTT
             CharSheetBox.IsEnabled = true;
         }
 
+        private void EnableImgOptionsBox()
+        {
+            ImgOptionsBox.IsEnabled = true;
+        }
+
+        private void DisableImgOptionsBox()
+        {
+            ImgOptionsBox.IsEnabled = false;
+            deleteTileCheck.IsChecked = false;
+            paintTileCheck.IsChecked = false;
+        }
+
+        private void InitializeCharacterSheet()
+        {
+            CharSheetLayer.Items.Clear();
+            CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Background);
+            CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Hidden);
+            CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Normal);
+        }
+
         #region graphics
         private void AddGraphicsClick(object sender, RoutedEventArgs e)
         {
@@ -140,10 +161,7 @@ namespace VTT
                 {
                     imgFolderTree.Items.Add(System.IO.Path.GetFileName(dir[i]));
                     List<BitmapImage> temp = GraphicsProvider.LoadGraphics(dir[i]);
-                    imgListByDir.Add(
-                        System.IO.Path.GetFileName(dir[i]),
-                        temp
-                        );
+                    imgListByDir.Add(System.IO.Path.GetFileName(dir[i]), temp);
                 }
             }
             else
@@ -354,6 +372,7 @@ namespace VTT
 
         private void DisconnectFromServer(object sender, RoutedEventArgs e)
         {
+            channel.Unsubscribe();
             server.PlayerCloseConnection();
             InitializeVariables();
             SetHostPlayerOptions();
@@ -364,6 +383,7 @@ namespace VTT
             //1. No hosting/no playing
             if (server == null)
             {
+                EnableImgOptionsBox();
                 MenuGamemaster.IsEnabled = true;
                 MenuHostGame.IsEnabled = true;
                 MenuStopHosting.IsEnabled = false;
@@ -374,6 +394,7 @@ namespace VTT
             //2. Hosting
             else if (server.IsHosting())
             {
+                EnableImgOptionsBox();
                 MenuGamemaster.IsEnabled = true;
                 MenuHostGame.IsEnabled = false;
                 MenuStopHosting.IsEnabled = true;
@@ -382,6 +403,7 @@ namespace VTT
             //3. Player connected to server
             else
             {
+                DisableImgOptionsBox();
                 MenuGamemaster.IsEnabled = false;
                 MenuPlayer.IsEnabled = true; 
                 MenuJoinGame.IsEnabled = false;
@@ -399,6 +421,7 @@ namespace VTT
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Background);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Hidden);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Normal);
+            InitializeCharacterSheet();
         }
         /// <summary>
         /// Draws lines on canvas that indicates tiles' sizes
@@ -480,6 +503,7 @@ namespace VTT
                 cs.ArmorClass = int.Parse(CharAC.Text);
                 cs.HP = int.Parse(CharHP.Text);
                 cs.Initiative = int.Parse(CharInitiative.Text);
+                cs.LayerMode = CharSheetLayer.SelectedItem.ToString();
             }
             catch
             {
@@ -496,6 +520,7 @@ namespace VTT
             CharHP.Text = cs.HP.ToString();
             CharAC.Text = cs.ArmorClass.ToString();
             CharInitiative.Text = cs.Initiative.ToString();
+            CharSheetLayer.Text = cs.LayerMode;
         }
 
         public void CharSheetChanged(int ID, CharacterSheet cs)
@@ -535,6 +560,15 @@ namespace VTT
                     var t = element as TokenTile;
                     if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                     {
+                        //check if token is hidden- if so then player cannot see it's character sheet
+                        if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() && 
+                            server != null)
+                        {
+                            if (chatClient.PT == ChatClient.PlayerType.Player)
+                            {
+                                break;
+                            }
+                        }
                         tokenSheet = t;
                         DisplayCharSheet(t.CharSheet, t.Source);
                         foundTile = true;
@@ -561,7 +595,7 @@ namespace VTT
             //check if image and layer modes are selected and if we paint
             if (GraphicsList.SelectedIndex != -1 &&
                 layerModeCB.SelectedIndex != -1 &&
-                paintCheck.IsChecked == true &&
+                paintTileCheck.IsChecked == true &&
                 (tileCB.IsChecked == true || tokenCB.IsChecked == true))
             {
                 AddTileOrToken();
@@ -604,6 +638,14 @@ namespace VTT
                         var t = element as TokenTile;
                         if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                         {
+                            if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() &&
+                                server != null)
+                            {
+                                if (chatClient.PT == ChatClient.PlayerType.Player)
+                                {
+                                    break;
+                                }
+                            }
                             dragObject = t;
                             isDragging = true;
                             //add line that shows the distance between
@@ -641,7 +683,8 @@ namespace VTT
                 imgToAdd = new TokenTile();
                 var TT = imgToAdd as TokenTile;
                 TT.CharSheet = new CharacterSheet();
-                temp.CharSheet = TT.CharSheet;  
+                temp.CharSheet = TT.CharSheet;
+                temp.CharSheet.LayerMode = layerModeCB.SelectedItem.ToString();
             }
             BitmapImage tempBI = new BitmapImage();
             tempBI.BeginInit();
@@ -658,8 +701,7 @@ namespace VTT
             imgToAdd.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
             imgToAdd.ID = ImageTile.AssignNextID();
             GameMap.Add(imgToAdd);
-            //test
-            
+
             temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
             temp.Margin = imgToAdd.Margin;
             temp.Height = imgToAdd.Height;
@@ -734,7 +776,7 @@ namespace VTT
         //don't allow to have both paint and delete checked
         private void deleteTileCheck_Checked(object sender, RoutedEventArgs e)
         {
-            paintCheck.IsChecked = false;
+            paintTileCheck.IsChecked = false;
         }
 
         private void tokenCB_Checked(object sender, RoutedEventArgs e)
