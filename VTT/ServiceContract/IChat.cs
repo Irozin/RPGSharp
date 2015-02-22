@@ -27,6 +27,8 @@ namespace VTT
         void TileAdded(TileToTransfer tile);
         [OperationContract(IsOneWay = true)]
         void TileDeleted(int ID);
+        [OperationContract(IsOneWay = true)]
+        void CharSheetChanged(int ID, CharacterSheet cs);
     }
     
     public interface IChatCallback
@@ -41,5 +43,7 @@ namespace VTT
         void ClientTileAdded(TileToTransfer tile);
         [OperationContract(IsOneWay = true)]
         void ClientTileDeleted(int ID);
+        [OperationContract(IsOneWay = true)]
+        void ClientCharSheetChanged(int ID, CharacterSheet cs);
     }
 }

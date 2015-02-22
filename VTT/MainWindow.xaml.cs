@@ -31,9 +31,7 @@ namespace VTT
         private IChat channel;
         //callbacks
         List<IChatCallback> clients = new List<IChatCallback>();
-        //test
-        public List<ChatClient> clientsName { get; private set; }
-        //private set
+
         private int TILE_HEIGHT;
         private int TILE_WIDTH;
         
@@ -41,6 +39,8 @@ namespace VTT
         bool isDragging = false;
         TokenTile dragObject;
         Line dragLine;
+        //for displaying character sheet
+        TokenTile tokenSheet;
         List<ImageTile> GameMap;
         List<TileToTransfer> ListOfTiles;
         int map_height;
@@ -59,6 +59,7 @@ namespace VTT
                 System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(System.IO.Directory.GetCurrentDirectory())) + "\\img";
             InitializeVariables();
             SetHostPlayerOptions();
+            DisableCharacterSheet();
         }
 
 
@@ -80,6 +81,19 @@ namespace VTT
             map_width = 0;
             server = null;
             channel = null;
+        }
+
+        private void DisableCharacterSheet()
+        {
+            CharSheetBox.IsEnabled = false;
+            CharName.Text = string.Empty;
+            CharHP.Text = string.Empty;
+            CharAC.Text = string.Empty;
+            CharInitiative.Text = string.Empty;
+        }
+        private void EnableCharacterSheet()
+        {
+            CharSheetBox.IsEnabled = true;
         }
 
         #region graphics
@@ -306,7 +320,6 @@ namespace VTT
         
         private void StopHosting(object sender, RoutedEventArgs e)
         {
-            server.StopHosting();
             clients.ForEach(delegate(IChatCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
@@ -319,6 +332,7 @@ namespace VTT
                     clients.Remove(c);
                 }
             });
+            server.StopHosting();
             InitializeVariables();
             SetHostPlayerOptions();
         }
@@ -444,6 +458,60 @@ namespace VTT
             SetCanvas();
         }
 
+        private void SaveCharacterSheetBTN(object sender, RoutedEventArgs e)
+        {
+            CharacterSheet temp = SaveCharSheetValues();
+            if (temp != null)
+            {
+                tokenSheet.CharSheet = temp;
+                if (server != null)
+                {
+                    channel.CharSheetChanged(tokenSheet.ID, tokenSheet.CharSheet);
+                }
+            }
+        }
+
+        public CharacterSheet SaveCharSheetValues()
+        {
+            CharacterSheet cs = new CharacterSheet();
+            try
+            {
+                cs.Name = CharName.Text;
+                cs.ArmorClass = int.Parse(CharAC.Text);
+                cs.HP = int.Parse(CharHP.Text);
+                cs.Initiative = int.Parse(CharInitiative.Text);
+            }
+            catch
+            {
+                MessageBox.Show("Cannot save character's sheet");
+                cs = null;
+            }
+            return cs;
+        }
+
+        public void DisplayCharSheet(CharacterSheet cs, ImageSource portait)
+        {
+            CharPortrait.Source = portait;
+            CharName.Text = cs.Name.ToString();
+            CharHP.Text = cs.HP.ToString();
+            CharAC.Text = cs.ArmorClass.ToString();
+            CharInitiative.Text = cs.Initiative.ToString();
+        }
+
+        public void CharSheetChanged(int ID, CharacterSheet cs)
+        {
+            clients.ForEach(delegate(IChatCallback c)
+            {
+                if (((ICommunicationObject)c).State == CommunicationState.Opened)
+                {
+                    c.ClientCharSheetChanged(ID, cs);
+                }
+                else
+                {
+                    clients.Remove(c);
+                }
+            });
+        }
         #endregion
 
         #region mapeditor
@@ -458,6 +526,7 @@ namespace VTT
             Point mousePos = Mouse.GetPosition(map);
             int mouse_X = ((int)mousePos.X / TILE_WIDTH) * TILE_WIDTH;
             int mouse_Y = ((int)mousePos.Y / TILE_HEIGHT) * TILE_HEIGHT;
+            bool foundTile = false;
             //search which element was clicked
             foreach (UIElement element in map.Children)
             {
@@ -466,12 +535,21 @@ namespace VTT
                     var t = element as TokenTile;
                     if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                     {
-                        MessageBox.Show("Make character sheet");
+                        tokenSheet = t;
+                        DisplayCharSheet(t.CharSheet, t.Source);
+                        foundTile = true;
                         break;
                     }
                 }
             }
-
+            if (!foundTile)
+            {
+                DisableCharacterSheet();
+            }
+            else
+            {
+                EnableCharacterSheet();
+            }
         }
         /// <summary>
         /// Draws tile on canvas; Move tiles in the canvas
@@ -550,15 +628,20 @@ namespace VTT
             int mouse_X = (int)(mousePos.X / TILE_WIDTH);
             int mouse_Y = (int)(mousePos.Y / TILE_HEIGHT);
 
-            ImageTile imgToAdd = null;
+            ImageTile imgToAdd;
+            TileToTransfer temp = new TileToTransfer();
 
             if (tileCB.IsChecked == true)
             {
                 imgToAdd = new ImageTile();
+                temp.CharSheet = null;
             }
             else
             {
                 imgToAdd = new TokenTile();
+                var TT = imgToAdd as TokenTile;
+                TT.CharSheet = new CharacterSheet();
+                temp.CharSheet = TT.CharSheet;  
             }
             BitmapImage tempBI = new BitmapImage();
             tempBI.BeginInit();
@@ -576,7 +659,7 @@ namespace VTT
             imgToAdd.ID = ImageTile.AssignNextID();
             GameMap.Add(imgToAdd);
             //test
-            TileToTransfer temp = new TileToTransfer();
+            
             temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
             temp.Margin = imgToAdd.Margin;
             temp.Height = imgToAdd.Height;
@@ -584,14 +667,6 @@ namespace VTT
             temp.LayerMode = imgToAdd.LayerMode;
             temp.PutPosition = imgToAdd.PutPosition;
             temp.ID = imgToAdd.ID;
-            if (imgToAdd is TokenTile)
-            {
-                temp.CharSheet = true;
-            }
-            else
-            {
-                temp.CharSheet = false;
-            }
 
             ListOfTiles.Add(temp);
             //sending stuff
@@ -670,6 +745,11 @@ namespace VTT
         private void tileCB_Checked(object sender, RoutedEventArgs e)
         {
             tokenCB.IsChecked = false;
+        }
+
+        private void CharSheetSaveBTN_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
         #endregion

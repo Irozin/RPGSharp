@@ -71,32 +71,25 @@ namespace VTT
 
         public void ClientTileAdded(TileToTransfer tile)
         {
-            if (tile.CharSheet == false)
+            ImageTile tileToAdd;
+            if (tile.CharSheet != null)
             {
-                window.map.Children.Add(new ImageTile
-                { 
-                    Margin = tile.Margin,
-                    Height = tile.Height,
-                    Width = tile.Width,
-                    Source = tile.DeserializeImg(),
-                    LayerMode = tile.LayerMode,
-                    PutPosition = tile.PutPosition,
-                    ID = tile.ID
-                });
+                tileToAdd = new TokenTile();
+                var temp = tileToAdd as TokenTile;
+                temp.CharSheet = tile.CharSheet;
             }
             else
             {
-                window.map.Children.Add(new TokenTile
-                {
-                    Margin = tile.Margin,
-                    Height = tile.Height,
-                    Width = tile.Width,
-                    Source = tile.DeserializeImg(),
-                    LayerMode = tile.LayerMode,
-                    PutPosition = tile.PutPosition,
-                    ID = tile.ID
-                });
+                tileToAdd = new ImageTile();
             }
+            tileToAdd.Margin = tile.Margin;
+            tileToAdd.Height = tile.Height;
+            tileToAdd.Width = tile.Width;
+            tileToAdd.Source = tile.DeserializeImg();
+            tileToAdd.LayerMode = tile.LayerMode;
+            tileToAdd.PutPosition = tile.PutPosition;
+            tileToAdd.ID = tile.ID;
+            window.map.Children.Add(tileToAdd);
         }
 
         public void ClientTileDeleted(int ID)
@@ -109,6 +102,22 @@ namespace VTT
                     if (temp.ID == ID)
                     {
                         window.map.Children.Remove(temp);
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void ClientCharSheetChanged(int ID, CharacterSheet cs)
+        {
+            foreach (var t in window.map.Children)
+            {
+                if (t is TokenTile)
+                {
+                    var temp = t as TokenTile;
+                    if (temp.ID == ID)
+                    {
+                        temp.CharSheet = cs;
                         break;
                     }
                 }

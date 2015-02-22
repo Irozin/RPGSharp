@@ -23,7 +23,7 @@
                 <MenuItem Header="Player" Name="MenuPlayer">
                     <MenuItem Header="Join" Name="MenuJoinGame" Click="JoinGameSettings"/>
                     <MenuItem Header="Disconnect" Name="MenuDisconnect" Click="DisconnectFromServer"/>
-                </MenuItem>        
+                </MenuItem>
             </MenuItem>
         </Menu>
         <ListView Name="GraphicsList" HorizontalAlignment="Left" Margin="0,95,0,250" VerticalAlignment="Stretch" Width="130" IsSynchronizedWithCurrentItem="True">
@@ -53,7 +53,7 @@
             <TextBox x:Name="chatInput" HorizontalAlignment="Left" Height="84" TextWrapping="Wrap" VerticalAlignment="Top" Width="203"/>
             <Button x:Name="sendMsgButton" Content="Send" HorizontalAlignment="Left" Height="30" Width="203" Click="sendMsgButton_Click"/>
         </StackPanel>
-        <ScrollViewer Name="canvasScroll" HorizontalAlignment="Left" Height="700" Margin="135,30,0,0" VerticalAlignment="Top" Width="911">
+        <ScrollViewer Name="canvasScroll" HorizontalAlignment="Left" Height="580" Margin="135,30,0,0" VerticalAlignment="Top" Width="911">
             <Canvas Name="map" Height="0" Width="0" MouseLeftButtonDown="map_MouseLeftButtonDown" MouseMove="map_MouseMove" MouseLeftButtonUp="map_MouseLeftButtonUp" MouseRightButtonDown="map_MouseRightButtonDown"/>
         </ScrollViewer>
         <WrapPanel HorizontalAlignment="Left" Height="29" Margin="331,25,0,0" VerticalAlignment="Top" Width="200">
@@ -62,6 +62,35 @@
                     <Setter Property="Margin" Value="5" />
                 </Style>
             </WrapPanel.Resources>
+        </WrapPanel>
+        <WrapPanel HorizontalAlignment="Left" Height="117" Margin="130,610,0,0" VerticalAlignment="Top" Width="916">
+            <GroupBox Name="CharSheetBox" Header="Character Sheet" Height="115" Width="300">
+                <WrapPanel HorizontalAlignment="Left" Height="90" VerticalAlignment="Top" Width="290" Margin="0,0,-2,0">
+                    <Image Name="CharPortrait" Height="85" Width="85"/>
+                    <StackPanel Width="205">
+                        <StackPanel.Resources>
+                            <Style TargetType="WrapPanel">
+                                <Setter Property="Margin" Value="2"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <WrapPanel Height="24">
+                            <Label Content="Name" Height="24" Width="60"/>
+                          <TextBox Name="CharName" Height="24" TextWrapping="Wrap" Width="136"/>
+                        </WrapPanel>
+                        <WrapPanel>
+                            <Label Content="HP" Height="24" Width="60"/>
+                            <TextBox Name="CharHP" Height="24" TextWrapping="Wrap" Width="40"/>
+                            <Label Content="AC" Height="24"/>
+                            <TextBox Name="CharAC" Height="24" TextWrapping="Wrap" Width="40"/>
+                        </WrapPanel>
+                        <WrapPanel>
+                            <Label Content="Initative" Height="24"  Width="60"/>
+                            <TextBox Name="CharInitiative" Height="24" TextWrapping="Wrap" Width="40"/>
+                            <Button Name="CharSheetSaveBTN" Content="Save" Width="50" Click="SaveCharacterSheetBTN" />
+                        </WrapPanel>
+                    </StackPanel>
+                </WrapPanel>
+            </GroupBox>
         </WrapPanel>
 
 

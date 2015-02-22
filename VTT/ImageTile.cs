@@ -41,7 +41,23 @@ namespace VTT
 
     public class TokenTile : ImageTile
     {
-        //make struct/class for storing player's data (character sheet)
+        public CharacterSheet CharSheet { get; set; }
+    }
+
+    public class CharacterSheet
+    {
+        public string Name { get; set; }
+        public int HP { get; set; }
+        public int ArmorClass { get; set; }
+        public int Initiative { get; set; }
+
+        public CharacterSheet()
+        {
+            Name = string.Empty;
+            HP = 0;
+            ArmorClass = 0;
+            Initiative = 0;
+        }
     }
 
     [DataContract]
@@ -54,7 +70,7 @@ namespace VTT
         [DataMember]
         public Point PutPosition { get; set; }
         [DataMember]
-        public bool CharSheet { get; set; } // false == imagetile, true == tokentile
+        public CharacterSheet CharSheet { get; set; } //null == it's image tile
         [DataMember]
         public double Width { get; set; }
         [DataMember]
