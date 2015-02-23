@@ -35,17 +35,16 @@ namespace VTT
 
         private int TILE_HEIGHT;
         private int TILE_WIDTH;
-        
+        private int map_height;
+        private int map_width;
         //for dragging tokens
         bool isDragging = false;
         TokenTile dragObject;
         Line dragLine;
         //for displaying character sheet
         TokenTile tokenSheet;
-        List<ImageTile> GameMap;
-        List<TileToTransfer> ListOfTiles;
-        int map_height;
-        int map_width;
+        //list of tiles
+        public List<TileToTransfer> ListOfTiles { get; set; }
         TileTransferCollection testList;
 
         //server variables
@@ -76,7 +75,6 @@ namespace VTT
 
         private void InitializeVariables()
         {
-            GameMap = new List<ImageTile>();
             ListOfTiles = new List<TileToTransfer>();
             map_height = 0;
             map_width = 0;
@@ -500,6 +498,7 @@ namespace VTT
             if (temp != null)
             {
                 tokenSheet.CharSheet = temp;
+                ListOfTiles.First(t => t.ID == tokenSheet.ID).CharSheet = temp;
                 if (server != null)
                 {
                     channel.CharSheetChanged(tokenSheet.ID, tokenSheet.CharSheet);
@@ -549,6 +548,26 @@ namespace VTT
                     clients.Remove(c);
                 }
             });
+        }
+
+        private void SaveMap(object sender, RoutedEventArgs e)
+        {
+            MapInfo mapInfo = new MapInfo();
+            mapInfo.gameMap = ListOfTiles;
+            mapInfo.tileHeight = TILE_HEIGHT;
+            mapInfo.tileWidth = TILE_WIDTH;
+            mapInfo.mapHeight = map_height;
+            mapInfo.mapWidth = map_width;
+            MapSaveLoad.SaveMap(mapInfo);
+        }
+
+        private void LoadMap(object sender, RoutedEventArgs e)
+        {
+            MapSaveLoad.LoadMap(this);
+            foreach (var tile in ListOfTiles)
+            {
+                AddTileOrTokenDeserialize(tile);
+            }
         }
         #endregion
 
@@ -627,7 +646,6 @@ namespace VTT
                         if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                         {
                             map.Children.Remove(t);
-                            GameMap.Remove(t);
                             if (server != null)
                             {
                                 channel.TileDeleted(t.ID);
@@ -713,10 +731,8 @@ namespace VTT
             imgToAdd.LayerMode = layerModeCB.SelectedItem.ToString();
             imgToAdd.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
             imgToAdd.ID = ImageTile.AssignNextID();
-            GameMap.Add(imgToAdd);
 
             temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
-            temp.Margin = imgToAdd.Margin;
             temp.Height = imgToAdd.Height;
             temp.Width = imgToAdd.Width;
             temp.LayerMode = imgToAdd.LayerMode;
@@ -734,6 +750,28 @@ namespace VTT
                 map.Children.Add(imgToAdd);
             }
             
+        }
+        public void AddTileOrTokenDeserialize(TileToTransfer tile)
+        {
+            ImageTile tileToAdd;
+            if (tile.CharSheet == null)
+            {
+                tileToAdd = new ImageTile();
+            }
+            else
+            {
+                tileToAdd = new TokenTile();
+                TokenTile temp = tileToAdd as TokenTile;
+                temp.CharSheet = tile.CharSheet;
+            }
+            tileToAdd.PutPosition = tile.PutPosition;
+            tileToAdd.Margin = new Thickness(tileToAdd.PutPosition.X, tileToAdd.PutPosition.Y, 0, 0);
+            tileToAdd.Height = tile.Height;
+            tileToAdd.Width = tile.Width;
+            tileToAdd.Source = tile.DeserializeImg();
+            tileToAdd.LayerMode = tile.LayerMode;
+            tileToAdd.ID = tile.ID;
+            map.Children.Add(tileToAdd);
         }
         /// <summary>
         /// Drag ImageTile object in the canvas

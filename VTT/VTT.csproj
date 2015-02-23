@@ -58,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MapSaveLoad.cs" />
     <Compile Include="Server.cs" />
     <Page Include="JoinSettings.xaml">
       <SubType>Designer</SubType>

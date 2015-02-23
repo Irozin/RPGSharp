@@ -43,7 +43,7 @@ namespace VTT
     {
         public CharacterSheet CharSheet { get; set; }
     }
-
+    [Serializable()]
     public class CharacterSheet
     {
         public string Name { get; set; }
@@ -61,7 +61,7 @@ namespace VTT
         }
     }
 
-    [DataContract]
+    [DataContract, Serializable()]
     public class TileToTransfer
     {
         [DataMember]
@@ -76,8 +76,6 @@ namespace VTT
         public double Width { get; set; }
         [DataMember]
         public double Height { get; set; }
-        [DataMember]
-        public Thickness Margin { get; set; }
         [DataMember]
         public int ID { get; set; }
 

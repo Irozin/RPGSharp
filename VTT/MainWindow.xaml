@@ -7,6 +7,8 @@
             <MenuItem Header="File">
                 <MenuItem Header="Map">
                     <MenuItem Header="New" Click="CreateMapBtn" />
+                    <MenuItem Header="Load" Click="LoadMap"/>
+                    <MenuItem Header="Save" Click="SaveMap"/>
                 </MenuItem>
                 <MenuItem Name="GraphicsItems" Header="Graphics">
                     <MenuItem Header="Load default graphics" Name="MenuDefaultGraphics" Click="InitializeImgFolderTree"/>

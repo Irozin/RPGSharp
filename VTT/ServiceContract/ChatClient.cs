@@ -82,12 +82,12 @@ namespace VTT
             {
                 tileToAdd = new ImageTile();
             }
-            tileToAdd.Margin = tile.Margin;
+            tileToAdd.PutPosition = tile.PutPosition;
+            tileToAdd.Margin = new Thickness(tileToAdd.PutPosition.X, tileToAdd.PutPosition.Y, 0, 0);
             tileToAdd.Height = tile.Height;
             tileToAdd.Width = tile.Width;
             tileToAdd.Source = tile.DeserializeImg();
             tileToAdd.LayerMode = tile.LayerMode;
-            tileToAdd.PutPosition = tile.PutPosition;
             tileToAdd.ID = tile.ID;
 
             //check if tile is hidden- if so then hide it from player
