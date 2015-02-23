@@ -34,11 +34,18 @@ namespace VTT
 
         private void joinButton_Click(object sender, RoutedEventArgs e)
         {
-            _Join = true;
-            _Name = nameBox.Text;
-            _IP = ipBox.Text;
-            _Port = portBox.Text;
-            this.Close();
+            if (ipBox.Text == string.Empty || _Name == string.Empty)
+            {
+                MessageBox.Show("Please fill in all fields.");
+            }
+            else
+            {
+                _Join = true;
+                _Name = nameBox.Text;
+                _IP = ipBox.Text;
+                _Port = portBox.Text;
+                this.Close();
+            } 
         }
 
         private void closeButton_Click(object sender, RoutedEventArgs e)

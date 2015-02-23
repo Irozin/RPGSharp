@@ -362,20 +362,33 @@ namespace VTT
             js.ShowDialog();
             if (js._Join)
             {
-                server = Server.GetInstance(serverType);
-                chatClient = new ChatClient(js._Name, chatBox, ChatClient.PlayerType.Player, this);
-                server.JoinGame(chatClient, this, chatBox, js._Name, js._IP, js._Port);
-                channel = server.GetChannel();
-                SetHostPlayerOptions();
+                try
+                {
+                    server = Server.GetInstance(serverType);
+                    chatClient = new ChatClient(js._Name, chatBox, ChatClient.PlayerType.Player, this);
+                    server.JoinGame(chatClient, this, chatBox, js._Name, js._IP, js._Port);
+                    channel = server.GetChannel();
+                    SetHostPlayerOptions();
+                }
+                catch
+                {
+                    MessageBox.Show("Couldn't connect to the server.");
+                    InitializeVariables();
+                    SetHostPlayerOptions();
+                }
+                
             }
         }
 
         private void DisconnectFromServer(object sender, RoutedEventArgs e)
         {
-            channel.Unsubscribe();
-            server.PlayerCloseConnection();
-            InitializeVariables();
-            SetHostPlayerOptions();
+            if (channel != null)
+            {
+                channel.Unsubscribe();
+                server.PlayerCloseConnection();
+                InitializeVariables();
+                SetHostPlayerOptions();
+            } 
         }
 
         private void SetHostPlayerOptions()

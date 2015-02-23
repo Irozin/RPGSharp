@@ -75,9 +75,9 @@ namespace VTT
                 channel.SubscribePlayer();
                 channel.SendMessage("*** " + chatClient.Name + " *** has joined", "Server");
             }
-            catch (Exception exc)
+            catch
             {
-                MessageBox.Show(exc.Message);
+                throw;
             }
         }
 
