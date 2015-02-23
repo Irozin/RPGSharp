@@ -316,6 +316,21 @@ namespace VTT
             map_height = mapH;
             map_width = mapW;
         }
+
+        public void ChangeMap()
+        {
+            clients.ForEach(delegate(IChatCallback c)
+            {
+                if (((ICommunicationObject)c).State == CommunicationState.Opened)
+                {
+                    c.ReceiveMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                }
+                else
+                {
+                    clients.Remove(c);
+                }
+            });
+        }
         #endregion
         #endregion
 
@@ -564,9 +579,17 @@ namespace VTT
         private void LoadMap(object sender, RoutedEventArgs e)
         {
             MapSaveLoad.LoadMap(this);
-            foreach (var tile in ListOfTiles)
+            if (server != null)
             {
-                AddTileOrTokenDeserialize(tile);
+                channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                channel.ChangeMap();
+            }
+            else
+            {
+                foreach (var tile in ListOfTiles)
+                {
+                    AddTileOrTokenDeserialize(tile);
+                }
             }
         }
         #endregion

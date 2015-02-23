@@ -34,7 +34,7 @@ namespace VTT
 
         private void joinButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ipBox.Text == string.Empty || _Name == string.Empty)
+            if (ipBox.Text == string.Empty || nameBox.Text == string.Empty)
             {
                 MessageBox.Show("Please fill in all fields.");
             }

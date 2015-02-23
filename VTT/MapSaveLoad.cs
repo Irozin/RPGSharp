@@ -56,10 +56,6 @@ namespace VTT
                     stream.Close();
                     window.CreateMap(mapInfo.tileWidth, mapInfo.tileHeight, mapInfo.mapHeight, mapInfo.mapWidth);
                     window.ListOfTiles = mapInfo.gameMap;
-                    //foreach (var tile in window.ListOfTiles)
-                    //{
-                    //    window.AddTileOrTokenDeserialize(tile);
-                    //}
                 }        
                 catch
                 {

@@ -29,6 +29,8 @@ namespace VTT
         void TileDeleted(int ID);
         [OperationContract(IsOneWay = true)]
         void CharSheetChanged(int ID, CharacterSheet cs);
+        [OperationContract(IsOneWay = true)]
+        void ChangeMap();
     }
     
     public interface IChatCallback

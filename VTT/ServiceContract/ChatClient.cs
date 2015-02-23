@@ -16,9 +16,8 @@ namespace VTT
         public PlayerType PT { get; private set; }
 
         //for map
-        //readonly
-        public int TILE_WIDTH;
-        public int TILE_HEIGHT;
+        private int TILE_WIDTH;
+        private int TILE_HEIGHT;
         public MainWindow window;
 
         public ChatClient(string name, RichTextBox rtb, PlayerType pt, MainWindow window)
@@ -44,8 +43,8 @@ namespace VTT
         {
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
+            window.ListOfTiles = new List<TileToTransfer>();
             window.CreateMap(tileW, tileH, mapH, mapW);
-            //this.gameMap = map;
             foreach (var t in map)
             {
                 ClientTileAdded(t);
@@ -96,7 +95,7 @@ namespace VTT
             {
                 tileToAdd.Visibility = Visibility.Hidden;
             }
-
+            window.ListOfTiles.Add(tile);
             window.map.Children.Add(tileToAdd);
         }
 
