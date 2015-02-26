@@ -7,8 +7,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Net;
 using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Linq;
@@ -503,6 +501,7 @@ namespace VTT
             map.Height = mapH * TILE_HEIGHT;
             map.Width = mapW * TILE_WIDTH;
             GraphicsItems.IsEnabled = true;
+            ImageTile.ResetID();
             InitializeCanvas();
             SetCanvas();
         }
@@ -591,6 +590,7 @@ namespace VTT
                     AddTileOrTokenDeserialize(tile);
                 }
             }
+            ImageTile.SetID(ListOfTiles[ListOfTiles.Count - 1].ID);
         }
         #endregion
 

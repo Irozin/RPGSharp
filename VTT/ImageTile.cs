@@ -14,16 +14,26 @@ namespace VTT
 {
     public class ImageTile : Image
     {
-        private static int next_img_id = 0;
+        private static int img_id = 0;
 
         public static int GetIDValue()
         {
-            return next_img_id;
+            return img_id;
         }
 
         public static int AssignNextID()
         {
-            return ++next_img_id;
+            return ++img_id;
+        }
+
+        public static void ResetID()
+        {
+            img_id = 0;
+        }
+
+        public static void SetID(int value)
+        {
+            img_id = value;
         }
 
         //for tiles and tokens
