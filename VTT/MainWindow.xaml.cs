@@ -13,9 +13,6 @@ using System.Linq;
 
 namespace VTT
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext=false)]
     public partial class MainWindow : Window, ISerivceContract
     {
@@ -195,7 +192,7 @@ namespace VTT
             }
         }
 
-        #region IChat memebers
+        #region IServiceContract memebers
         public void SendMessage(string message, string userName)
         {
             clients.ForEach(delegate(IServiceContractCallback c)
@@ -341,6 +338,7 @@ namespace VTT
             if (channel != null)
                 channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
             SetHostPlayerOptions();
+            serviceClient.HostSetTileSizes(TILE_HEIGHT, TILE_WIDTH);
         }
         
         private void StopHosting(object sender, RoutedEventArgs e)
@@ -736,6 +734,7 @@ namespace VTT
                 temp.CharSheet = TT.CharSheet;
                 temp.CharSheet.LayerMode = layerModeCB.SelectedItem.ToString();
             }
+            //create image
             BitmapImage tempBI = new BitmapImage();
             tempBI.BeginInit();
             tempBI.StreamSource = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]);
@@ -752,14 +751,11 @@ namespace VTT
             imgToAdd.ID = ImageTile.AssignNextID();
 
             temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
-            temp.Height = imgToAdd.Height;
-            temp.Width = imgToAdd.Width;
             temp.LayerMode = imgToAdd.LayerMode;
             temp.PutPosition = imgToAdd.PutPosition;
             temp.ID = imgToAdd.ID;
 
             ListOfTiles.Add(temp);
-            //sending stuff
             if (server != null)
             {
                 channel.TileAdded(temp);
@@ -785,9 +781,9 @@ namespace VTT
             }
             tileToAdd.PutPosition = tile.PutPosition;
             tileToAdd.Margin = new Thickness(tileToAdd.PutPosition.X, tileToAdd.PutPosition.Y, 0, 0);
-            tileToAdd.Height = tile.Height;
-            tileToAdd.Width = tile.Width;
-            tileToAdd.Source = tile.DeserializeImg();
+            tileToAdd.Height = TILE_HEIGHT;
+            tileToAdd.Width = TILE_WIDTH;
+            tileToAdd.Source = tile.DeserializeImg(TILE_HEIGHT, TILE_WIDTH);
             tileToAdd.LayerMode = tile.LayerMode;
             tileToAdd.ID = tile.ID;
             map.Children.Add(tileToAdd);
@@ -830,7 +826,6 @@ namespace VTT
                 isDragging = false;
                 //delete line
                 map.Children.Remove(dragLine);
-                //server stuff
                 if (server != null)
                 {
                     channel.TileMoved(dragObject.ID, dragObject.PutPosition);

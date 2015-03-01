@@ -14,7 +14,7 @@ namespace VTT
         //for map
         private int TILE_WIDTH;
         private int TILE_HEIGHT;
-        public MainWindow window;
+        private MainWindow window;
 
         public ServiceClient(string name, RichTextBox rtb, PlayerType pt, MainWindow window)
         {
@@ -27,6 +27,12 @@ namespace VTT
         {
             GameMaster,
             Player
+        }
+        
+        public void HostSetTileSizes(int Height, int Width)
+        {
+            TILE_HEIGHT = Height;
+            TILE_WIDTH = Width;
         }
 
         #region IServiceContractCallback members
@@ -79,9 +85,9 @@ namespace VTT
             }
             tileToAdd.PutPosition = tile.PutPosition;
             tileToAdd.Margin = new Thickness(tileToAdd.PutPosition.X, tileToAdd.PutPosition.Y, 0, 0);
-            tileToAdd.Height = tile.Height;
-            tileToAdd.Width = tile.Width;
-            tileToAdd.Source = tile.DeserializeImg();
+            tileToAdd.Height = TILE_HEIGHT;
+            tileToAdd.Width = TILE_WIDTH;
+            tileToAdd.Source = tile.DeserializeImg(TILE_HEIGHT, TILE_WIDTH);
             tileToAdd.LayerMode = tile.LayerMode;
             tileToAdd.ID = tile.ID;
 

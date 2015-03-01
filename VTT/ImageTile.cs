@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Runtime.Serialization;
@@ -78,10 +77,6 @@ namespace VTT
         [DataMember]
         public CharacterSheet CharSheet { get; set; } //null == it's image tile
         [DataMember]
-        public double Width { get; set; }
-        [DataMember]
-        public double Height { get; set; }
-        [DataMember]
         public int ID { get; set; }
 
         public static System.IO.MemoryStream SerializeImg(BitmapImage bimg)
@@ -92,14 +87,14 @@ namespace VTT
             encoder.Save(ms);
             return ms;
         }
-        public BitmapImage DeserializeImg()
+        public BitmapImage DeserializeImg(int Height, int Width)
         {
             System.IO.MemoryStream ms = new System.IO.MemoryStream(Source);
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
             bi.StreamSource = ms;
-            bi.DecodePixelHeight = (int)Height;
-            bi.DecodePixelWidth = (int)Width;
+            bi.DecodePixelHeight = Height;
+            bi.DecodePixelWidth = Width;
             bi.EndInit();
             return bi;
         }
