@@ -20,33 +20,31 @@ namespace VTT
     public partial class MainWindow : Window, IChat
     {
         #region variables
-        public string DefaultImgFolderPath { get; set; }
+        private string DefaultImgFolderPath;
         //for storing folders with images and their images
-        Dictionary<string, List<BitmapImage>> imgListByDir = new Dictionary<string, List<BitmapImage>>();
+        private Dictionary<string, List<BitmapImage>> imgListByDir = new Dictionary<string, List<BitmapImage>>();
         
         //for networking
-        ChatClient chatClient;
+        private ChatClient chatClient;
         private Server server;
         private IChat channel;
         //callbacks
-        List<IChatCallback> clients = new List<IChatCallback>();
+        private List<IChatCallback> clients = new List<IChatCallback>();
+        //for server host- ServiceHost
+        private MainWindow serverType = null;
 
         private int TILE_HEIGHT;
         private int TILE_WIDTH;
         private int map_height;
         private int map_width;
         //for dragging tokens
-        bool isDragging = false;
-        TokenTile dragObject;
-        Line dragLine;
+        private bool isDragging = false;
+        private TokenTile dragObject;
+        private Line dragLine;
         //for displaying character sheet
-        TokenTile tokenSheet;
+        private TokenTile tokenSheet;
         //list of tiles
         public List<TileToTransfer> ListOfTiles { get; set; }
-        TileTransferCollection testList;
-
-        //server variables
-        MainWindow serverType = null;
         #endregion
 
         public MainWindow()
@@ -343,10 +341,8 @@ namespace VTT
             chatClient = new ChatClient("GM", chatBox, ChatClient.PlayerType.GameMaster, this);
             server.HostGame(chatClient, this, chatBox);
             channel = server.GetChannel();
-            testList = new TileTransferCollection();
-            testList.Tiles = ListOfTiles;
             if (channel != null)
-                channel.SendMap(testList.Tiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH); //ListOfTiles
+                channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
             SetHostPlayerOptions();
         }
         
