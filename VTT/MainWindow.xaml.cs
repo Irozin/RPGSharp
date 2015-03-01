@@ -190,9 +190,12 @@ namespace VTT
         #region ServiceMethods
         private void sendMsgButton_Click(object sender, RoutedEventArgs e)
         {
-            channel.SendMessage(chatInput.Text, chatClient.Name);
-            chatInput.Clear();
-            chatInput.Focus();
+            if (chatInput.Text != string.Empty)
+            {
+                channel.SendMessage(DiceRoll.Roll(chatInput.Text), chatClient.Name);
+                chatInput.Clear();
+                chatInput.Focus();
+            }
         }
 
         #region IChat memebers
