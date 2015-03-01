@@ -53,7 +53,7 @@ namespace VTT
                     MapInfo mapInfo = (MapInfo)formatter.Deserialize(stream);
                     stream.Close();
                     window.CreateMap(mapInfo.tileWidth, mapInfo.tileHeight, mapInfo.mapHeight, mapInfo.mapWidth);
-                    window.ListOfTiles = mapInfo.gameMap;
+                    window.SetListOfTiles(mapInfo.gameMap);
                 }        
                 catch
                 {
@@ -72,10 +72,10 @@ namespace VTT
     [Serializable()]
     public class MapInfo
     {
-        public List<TileToTransfer> gameMap;
-        public int mapHeight;
-        public int mapWidth;
-        public int tileHeight;
-        public int tileWidth;
+        public List<TileToTransfer> gameMap { get; set; }
+        public int mapHeight { get; set; }
+        public int mapWidth { get; set; }
+        public int tileHeight { get; set; }
+        public int tileWidth { get; set; }
     }
 }

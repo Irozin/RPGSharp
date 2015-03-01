@@ -45,7 +45,6 @@ namespace VTT
         {
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
-            window.ListOfTiles = new List<TileToTransfer>();
             window.CreateMap(tileW, tileH, mapH, mapW);
             foreach (var t in map)
             {
@@ -97,7 +96,6 @@ namespace VTT
             {
                 tileToAdd.Visibility = Visibility.Hidden;
             }
-            window.ListOfTiles.Add(tile);
             window.map.Children.Add(tileToAdd);
         }
 

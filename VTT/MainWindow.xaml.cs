@@ -32,8 +32,8 @@ namespace VTT
 
         private int TILE_HEIGHT;
         private int TILE_WIDTH;
-        private int map_height;
-        private int map_width;
+        private int MAP_HEIGHT;
+        private int MAP_WIDTH;
         //for dragging tokens
         private bool isDragging = false;
         private TokenTile dragObject;
@@ -41,7 +41,7 @@ namespace VTT
         //for displaying character sheet
         private TokenTile tokenSheet;
         //list of tiles
-        public List<TileToTransfer> ListOfTiles { get; set; }
+        private List<TileToTransfer> ListOfTiles = new List<TileToTransfer>();
         #endregion
 
         public MainWindow()
@@ -68,9 +68,8 @@ namespace VTT
 
         private void InitializeVariables()
         {
-            ListOfTiles = new List<TileToTransfer>();
-            map_height = 0;
-            map_width = 0;
+            MAP_HEIGHT = 0;
+            MAP_WIDTH = 0;
             server = null;
             channel = null;
         }
@@ -105,6 +104,11 @@ namespace VTT
             CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Background);
             CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Hidden);
             CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Normal);
+        }
+
+        public void SetListOfTiles(List<TileToTransfer> map)
+        {
+            ListOfTiles = map;
         }
 
         #region graphics
@@ -232,7 +236,7 @@ namespace VTT
                 if (!clients.Contains(callback))
                 {
                     clients.Add(callback);
-                    callback.ReceiveMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                    callback.ReceiveMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
                 }
             }
             catch (Exception exc)
@@ -288,6 +292,7 @@ namespace VTT
 
         public void TileMoved(int ID, Point newPos)
         {
+            ListOfTiles.Find(tile => tile.ID == ID).PutPosition = newPos;
             clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
@@ -306,8 +311,8 @@ namespace VTT
             ListOfTiles = rpgMap;
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
-            map_height = mapH;
-            map_width = mapW;
+            MAP_HEIGHT = mapH;
+            MAP_WIDTH = mapW;
         }
 
         public void ChangeMap()
@@ -316,7 +321,7 @@ namespace VTT
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
-                    c.ReceiveMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                    c.ReceiveMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
                 }
                 else
                 {
@@ -336,7 +341,7 @@ namespace VTT
             server.HostGame(serviceClient, this, chatBox);
             channel = server.GetChannel();
             if (channel != null)
-                channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                channel.SendMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
             SetHostPlayerOptions();
             serviceClient.HostSetTileSizes(TILE_HEIGHT, TILE_WIDTH);
         }
@@ -490,11 +495,12 @@ namespace VTT
         {
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
-            map_height = mapH;
-            map_width = mapW;
+            MAP_HEIGHT = mapH;
+            MAP_WIDTH = mapW;
             map.Height = mapH * TILE_HEIGHT;
             map.Width = mapW * TILE_WIDTH;
             GraphicsItems.IsEnabled = true;
+            ListOfTiles.Clear();
             ImageTile.ResetID();
             InitializeCanvas();
             SetCanvas();
@@ -560,13 +566,20 @@ namespace VTT
 
         private void SaveMap(object sender, RoutedEventArgs e)
         {
-            MapInfo mapInfo = new MapInfo();
-            mapInfo.gameMap = ListOfTiles;
-            mapInfo.tileHeight = TILE_HEIGHT;
-            mapInfo.tileWidth = TILE_WIDTH;
-            mapInfo.mapHeight = map_height;
-            mapInfo.mapWidth = map_width;
-            MapSaveLoad.SaveMap(mapInfo);
+            if (ListOfTiles.Count > 0)
+            {
+                MapInfo mapInfo = new MapInfo();
+                mapInfo.gameMap = ListOfTiles;
+                mapInfo.tileHeight = TILE_HEIGHT;
+                mapInfo.tileWidth = TILE_WIDTH;
+                mapInfo.mapHeight = MAP_HEIGHT;
+                mapInfo.mapWidth = MAP_WIDTH;
+                MapSaveLoad.SaveMap(mapInfo);
+            }
+            else
+            {
+                MessageBox.Show("You have to make map first.");
+            }
         }
 
         private void LoadMap(object sender, RoutedEventArgs e)
@@ -574,7 +587,7 @@ namespace VTT
             MapSaveLoad.LoadMap(this);
             if (server != null)
             {
-                channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
+                channel.SendMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
                 channel.ChangeMap();
             }
             else
@@ -635,7 +648,7 @@ namespace VTT
             }
         }
         /// <summary>
-        /// Draws tile on canvas; Move tiles in the canvas
+        /// Draws tile on canvas; Move tiles in the canvas; Delete tile
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -662,6 +675,7 @@ namespace VTT
                         var t = element as ImageTile;
                         if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                         {
+                            ListOfTiles.RemoveAll(tile => tile.ID == t.ID);
                             map.Children.Remove(t);
                             if (server != null)
                             {
@@ -742,20 +756,19 @@ namespace VTT
             tempBI.DecodePixelWidth = TILE_WIDTH;
             tempBI.EndInit();
             imgToAdd.Source = tempBI;
-
             imgToAdd.Margin = new Thickness(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT, 0, 0);
             imgToAdd.Height = TILE_HEIGHT;
             imgToAdd.Width = TILE_WIDTH;
             imgToAdd.LayerMode = layerModeCB.SelectedItem.ToString();
             imgToAdd.PutPosition = new Point(mouse_X * TILE_WIDTH, mouse_Y * TILE_HEIGHT);
             imgToAdd.ID = ImageTile.AssignNextID();
-
+            //for tranfering tiles
             temp.Source = TileToTransfer.SerializeImg(imgListByDir[imgFolderTree.SelectedItem.ToString()][GraphicsList.SelectedIndex]).GetBuffer();
             temp.LayerMode = imgToAdd.LayerMode;
             temp.PutPosition = imgToAdd.PutPosition;
             temp.ID = imgToAdd.ID;
-
             ListOfTiles.Add(temp);
+
             if (server != null)
             {
                 channel.TileAdded(temp);
@@ -826,6 +839,8 @@ namespace VTT
                 isDragging = false;
                 //delete line
                 map.Children.Remove(dragLine);
+                //change tile's position value in ListOfTiles
+                ListOfTiles.Find(tile => tile.ID == dragObject.ID).PutPosition = dragObject.PutPosition;
                 if (server != null)
                 {
                     channel.TileMoved(dragObject.ID, dragObject.PutPosition);
