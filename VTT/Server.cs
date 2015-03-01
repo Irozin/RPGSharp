@@ -7,8 +7,8 @@ namespace VTT
     public class Server
     {
         private ServiceHost host;
-        private DuplexChannelFactory<IChat> factory;
-        private IChat channel;
+        private DuplexChannelFactory<ISerivceContract> factory;
+        private ISerivceContract channel;
         private static Server server;
         private MainWindow serverType;
 
@@ -26,18 +26,18 @@ namespace VTT
             return server;
         }
 
-        public void HostGame(ChatClient chatClient, MainWindow window, System.Windows.Controls.RichTextBox rtb)
+        public void HostGame(ServiceClient serviceClient, MainWindow window, System.Windows.Controls.RichTextBox rtb)
         {
             try
             {
                 host = new ServiceHost(serverType);
                 host.Open();
-                InstanceContext ic = new InstanceContext(chatClient);
-                factory = new DuplexChannelFactory<IChat>(ic, "ChatClientPoint");
+                InstanceContext ic = new InstanceContext(serviceClient);
+                factory = new DuplexChannelFactory<ISerivceContract>(ic, "ClientServicePoint");
                 channel = factory.CreateChannel();
                 channel.Subscribe();
                 MessageBox.Show("Server started successfuly");
-                channel.SendMessage("*** " + chatClient.Name + " *** has joined", "Server");
+                channel.SendMessage("*** " + serviceClient.Name + " *** has joined", "Server");
             }
             catch (Exception exc)
             {
@@ -59,17 +59,17 @@ namespace VTT
             }
         }
 
-        public void JoinGame(ChatClient chatClient, MainWindow window, System.Windows.Controls.RichTextBox rtb, 
+        public void JoinGame(ServiceClient serviceClient, MainWindow window, System.Windows.Controls.RichTextBox rtb, 
             string userName, string address, string port)
         {
             try
             {
-                InstanceContext ic = new InstanceContext(chatClient);
+                InstanceContext ic = new InstanceContext(serviceClient);
                 Uri baseAddr = new Uri("net.tcp://" + address + ":" + port + "/VTT");
-                factory = new DuplexChannelFactory<IChat>(ic, "ChatClientPoint", new EndpointAddress(baseAddr));
+                factory = new DuplexChannelFactory<ISerivceContract>(ic, "ClientServicePoint", new EndpointAddress(baseAddr));
                 channel = factory.CreateChannel();
                 channel.SubscribePlayer();
-                channel.SendMessage("*** " + chatClient.Name + " *** has joined", "Server");
+                channel.SendMessage("*** " + serviceClient.Name + " *** has joined", "Server");
             }
             catch
             {
@@ -91,7 +91,7 @@ namespace VTT
             return host != null;
         }
 
-        public IChat GetChannel()
+        public ISerivceContract GetChannel()
         {
             return channel;
         }

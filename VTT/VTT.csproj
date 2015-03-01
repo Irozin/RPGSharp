@@ -73,9 +73,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ServiceContract\ChatClient.cs" />
+    <Compile Include="ServiceContract\ServiceClient.cs" />
     <Compile Include="GraphicsProvider.cs" />
-    <Compile Include="ServiceContract\IChat.cs" />
+    <Compile Include="ServiceContract\IServiceContract.cs" />
     <Compile Include="ImageTile.cs" />
     <Compile Include="JoinSettings.xaml.cs">
       <DependentUpon>JoinSettings.xaml</DependentUpon>

@@ -4,8 +4,8 @@ using System.Windows;
 
 namespace VTT
 {
-    [ServiceContract(CallbackContract = typeof(IChatCallback))]
-    public interface IChat
+    [ServiceContract(CallbackContract = typeof(IServiceContractCallback))]
+    public interface ISerivceContract
     {
         [OperationContract(IsOneWay = true)]
         void SendMessage(string message, string userName);
@@ -29,7 +29,7 @@ namespace VTT
         void ChangeMap();
     }
     
-    public interface IChatCallback
+    public interface IServiceContractCallback
     {
         [OperationContract(IsOneWay = true)]
         void ReceiveMessage(string message, string userName);

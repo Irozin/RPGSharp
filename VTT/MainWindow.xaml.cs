@@ -17,7 +17,7 @@ namespace VTT
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext=false)]
-    public partial class MainWindow : Window, IChat
+    public partial class MainWindow : Window, ISerivceContract
     {
         #region variables
         private string DefaultImgFolderPath;
@@ -25,11 +25,11 @@ namespace VTT
         private Dictionary<string, List<BitmapImage>> imgListByDir = new Dictionary<string, List<BitmapImage>>();
         
         //for networking
-        private ChatClient chatClient;
+        private ServiceClient serviceClient;
         private Server server;
-        private IChat channel;
+        private ISerivceContract channel;
         //callbacks
-        private List<IChatCallback> clients = new List<IChatCallback>();
+        private List<IServiceContractCallback> clients = new List<IServiceContractCallback>();
         //for server host- ServiceHost
         private MainWindow serverType = null;
 
@@ -77,7 +77,6 @@ namespace VTT
             server = null;
             channel = null;
         }
-
         private void DisableCharacterSheet()
         {
             CharSheetBox.IsEnabled = false;
@@ -190,7 +189,7 @@ namespace VTT
         {
             if (chatInput.Text != string.Empty)
             {
-                channel.SendMessage(DiceRoll.Roll(chatInput.Text), chatClient.Name);
+                channel.SendMessage(DiceRoll.Roll(chatInput.Text), serviceClient.Name);
                 chatInput.Clear();
                 chatInput.Focus();
             }
@@ -199,7 +198,7 @@ namespace VTT
         #region IChat memebers
         public void SendMessage(string message, string userName)
         {
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -216,7 +215,7 @@ namespace VTT
         {
             try
             {
-                var callback = OperationContext.Current.GetCallbackChannel<IChatCallback>();
+                var callback = OperationContext.Current.GetCallbackChannel<IServiceContractCallback>();
                 if (!clients.Contains(callback))
                 {
                     clients.Add(callback);    
@@ -232,7 +231,7 @@ namespace VTT
         {
             try
             {
-                var callback = OperationContext.Current.GetCallbackChannel<IChatCallback>();
+                var callback = OperationContext.Current.GetCallbackChannel<IServiceContractCallback>();
                 if (!clients.Contains(callback))
                 {
                     clients.Add(callback);
@@ -249,7 +248,7 @@ namespace VTT
         {
             try
             {
-                var callback = OperationContext.Current.GetCallbackChannel<IChatCallback>();
+                var callback = OperationContext.Current.GetCallbackChannel<IServiceContractCallback>();
                 clients.Remove(callback);
             }
             catch (Exception exc)
@@ -260,10 +259,8 @@ namespace VTT
 
         public void TileAdded(TileToTransfer tile)
         {
-            //test
             ListOfTiles.Add(tile);
-            //endoftest
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -279,7 +276,7 @@ namespace VTT
         public void TileDeleted(int ID)
         {
             ListOfTiles.RemoveAll(x => x.ID == ID);
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -294,7 +291,7 @@ namespace VTT
 
         public void TileMoved(int ID, Point newPos)
         {
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -318,7 +315,7 @@ namespace VTT
 
         public void ChangeMap()
         {
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -338,8 +335,8 @@ namespace VTT
         {
             serverType = new MainWindow();
             server = Server.GetInstance(serverType);
-            chatClient = new ChatClient("GM", chatBox, ChatClient.PlayerType.GameMaster, this);
-            server.HostGame(chatClient, this, chatBox);
+            serviceClient = new ServiceClient("GM", chatBox, ServiceClient.PlayerType.GameMaster, this);
+            server.HostGame(serviceClient, this, chatBox);
             channel = server.GetChannel();
             if (channel != null)
                 channel.SendMap(ListOfTiles, map_height, map_width, TILE_HEIGHT, TILE_WIDTH);
@@ -348,7 +345,7 @@ namespace VTT
         
         private void StopHosting(object sender, RoutedEventArgs e)
         {
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -375,8 +372,8 @@ namespace VTT
                 try
                 {
                     server = Server.GetInstance(serverType);
-                    chatClient = new ChatClient(js._Name, chatBox, ChatClient.PlayerType.Player, this);
-                    server.JoinGame(chatClient, this, chatBox, js._Name, js._IP, js._Port);
+                    serviceClient = new ServiceClient(js._Name, chatBox, ServiceClient.PlayerType.Player, this);
+                    server.JoinGame(serviceClient, this, chatBox, js._Name, js._IP, js._Port);
                     channel = server.GetChannel();
                     SetHostPlayerOptions();
                 }
@@ -550,7 +547,7 @@ namespace VTT
 
         public void CharSheetChanged(int ID, CharacterSheet cs)
         {
-            clients.ForEach(delegate(IChatCallback c)
+            clients.ForEach(delegate(IServiceContractCallback c)
             {
                 if (((ICommunicationObject)c).State == CommunicationState.Opened)
                 {
@@ -618,7 +615,7 @@ namespace VTT
                         if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() && 
                             server != null)
                         {
-                            if (chatClient.PT == ChatClient.PlayerType.Player)
+                            if (serviceClient.PT == ServiceClient.PlayerType.Player)
                             {
                                 break;
                             }
@@ -694,7 +691,7 @@ namespace VTT
                             if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() &&
                                 server != null)
                             {
-                                if (chatClient.PT == ChatClient.PlayerType.Player)
+                                if (serviceClient.PT == ServiceClient.PlayerType.Player)
                                 {
                                     break;
                                 }

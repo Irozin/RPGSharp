@@ -5,7 +5,7 @@ using System.Windows.Controls;
 
 namespace VTT
 {
-    public class ChatClient : IChatCallback
+    public class ServiceClient : IServiceContractCallback
     {
         public string Name { get; private set; }
         private RichTextBox rtb;
@@ -16,7 +16,7 @@ namespace VTT
         private int TILE_HEIGHT;
         public MainWindow window;
 
-        public ChatClient(string name, RichTextBox rtb, PlayerType pt, MainWindow window)
+        public ServiceClient(string name, RichTextBox rtb, PlayerType pt, MainWindow window)
         {
             Name = name;
             this.rtb = rtb;
@@ -29,7 +29,7 @@ namespace VTT
             Player
         }
 
-        #region IChatCallback members
+        #region IServiceContractCallback members
         public void ReceiveMessage(string message, string userName)
         {
             rtb.AppendText(userName + ": " + message + Environment.NewLine);
