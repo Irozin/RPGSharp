@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media.Imaging;
-using System.Windows;
 
 namespace VTT
 {
@@ -30,8 +29,8 @@ namespace VTT
                     BitmapImage bi = new BitmapImage();
                     bi.BeginInit();
                     bi.UriSource = new Uri(img);
-                    bi.DecodePixelHeight = 60; //TILE_HEIGHT;
-                    bi.DecodePixelWidth = 60;//TILE_WIDTH;
+                    bi.DecodePixelHeight = 60;
+                    bi.DecodePixelWidth = 60;
                     bi.EndInit();
                     imgList.Add(bi);
                 }

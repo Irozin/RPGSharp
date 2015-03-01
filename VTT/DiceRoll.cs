@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace VTT
@@ -17,8 +15,8 @@ namespace VTT
             {
                 if (expression.Substring(0, 3) == "/r ")
                 {
-                    string result = expression.Substring(2, expression.Length - 2);
                     expression = expression.Substring(2, expression.Length - 2);
+                    string result = expression;
                     result = result.Replace(" ", string.Empty);
                     //addition/subtraction
                     int sum = 0;
@@ -45,7 +43,6 @@ namespace VTT
                     {
                         //multiplication
                         var d = splitExp[0].Split('d');
-                        //var d = result.Split('d');
                         int numberOfRolls = Int32.Parse(d[0]);
                         int dieSides = Int32.Parse(d[1]);
                         for (int i = 0; i < numberOfRolls; ++i)
