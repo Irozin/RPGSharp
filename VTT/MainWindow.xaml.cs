@@ -53,6 +53,8 @@ namespace VTT
             InitializeVariables();
             SetHostPlayerOptions();
             DisableCharacterSheet();
+            InitializeCanvas();
+            clients.Clear();
         }
 
 
@@ -85,19 +87,16 @@ namespace VTT
         {
             CharSheetBox.IsEnabled = true;
         }
-
         private void EnableImgOptionsBox()
         {
             ImgOptionsBox.IsEnabled = true;
         }
-
         private void DisableImgOptionsBox()
         {
             ImgOptionsBox.IsEnabled = false;
             deleteTileCheck.IsChecked = false;
             paintTileCheck.IsChecked = false;
         }
-
         private void InitializeCharacterSheet()
         {
             CharSheetLayer.Items.Clear();
@@ -105,7 +104,6 @@ namespace VTT
             CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Hidden);
             CharSheetLayer.Items.Add(ImageTile.LayerModeEnum.Normal);
         }
-
         public void SetListOfTiles(List<TileToTransfer> map)
         {
             ListOfTiles = map;
@@ -413,6 +411,9 @@ namespace VTT
                 MenuPlayer.IsEnabled = true;
                 MenuJoinGame.IsEnabled = true;
                 MenuDisconnect.IsEnabled = false;
+                MenuMapOptions.IsEnabled = true;
+                chatInput.IsEnabled = false;
+                sendMsgButton.IsEnabled = false;
             }
             //2. Hosting
             else if (server.IsHosting())
@@ -422,6 +423,9 @@ namespace VTT
                 MenuHostGame.IsEnabled = false;
                 MenuStopHosting.IsEnabled = true;
                 MenuPlayer.IsEnabled = false;
+                MenuMapOptions.IsEnabled = true;
+                chatInput.IsEnabled = true;
+                sendMsgButton.IsEnabled = true;
             }
             //3. Player connected to server
             else
@@ -431,6 +435,9 @@ namespace VTT
                 MenuPlayer.IsEnabled = true; 
                 MenuJoinGame.IsEnabled = false;
                 MenuDisconnect.IsEnabled = true;
+                MenuMapOptions.IsEnabled = false;
+                chatInput.IsEnabled = true;
+                sendMsgButton.IsEnabled = true;
             }
         }
         #endregion
@@ -440,7 +447,7 @@ namespace VTT
         {
             canvasScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             canvasScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-            layerModeCB.Items.Clear();
+            //layerModeCB.Items.Clear();
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Background);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Hidden);
             layerModeCB.Items.Add(ImageTile.LayerModeEnum.Normal);
@@ -502,7 +509,7 @@ namespace VTT
             GraphicsItems.IsEnabled = true;
             ListOfTiles.Clear();
             ImageTile.ResetID();
-            InitializeCanvas();
+            //InitializeCanvas();
             SetCanvas();
         }
 
@@ -622,8 +629,9 @@ namespace VTT
                     var t = element as TokenTile;
                     if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
                     {
-                        //check if token is hidden- if so then player cannot see it's character sheet
-                        if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() && 
+                        //check if token is hidden or in background- if so then player cannot see it's character sheet
+                        if ((t.LayerMode == ImageTile.LayerModeEnum.Background.ToString() ||
+                            t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString()) && 
                             server != null)
                         {
                             if (serviceClient.PT == ServiceClient.PlayerType.Player)
@@ -698,14 +706,20 @@ namespace VTT
                     if (element is TokenTile)
                     {
                         var t = element as TokenTile;
-                        if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y)
+                        //Nobody can move tiles in background
+                        if (t.PutPosition.X == mouse_X && t.PutPosition.Y == mouse_Y && 
+                            t.LayerMode != ImageTile.LayerModeEnum.Background.ToString())
                         {
-                            if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString() &&
-                                server != null)
+                            //Players can't move hidden tokens
+                            if (server != null)
                             {
                                 if (serviceClient.PT == ServiceClient.PlayerType.Player)
                                 {
-                                    break;
+                                    if (t.LayerMode == ImageTile.LayerModeEnum.Hidden.ToString())
+                                    {
+                                        //break;
+                                        continue;
+                                    }
                                 }
                             }
                             dragObject = t;
@@ -839,13 +853,19 @@ namespace VTT
                 isDragging = false;
                 //delete line
                 map.Children.Remove(dragLine);
-                //change tile's position value in ListOfTiles
-                ListOfTiles.Find(tile => tile.ID == dragObject.ID).PutPosition = dragObject.PutPosition;
+                //change tile's position value in ListOfTiles- for host only
                 if (server != null)
                 {
+                    if (serviceClient.PT == ServiceClient.PlayerType.GameMaster)
+                    {
+                        ListOfTiles.Find(tile => tile.ID == dragObject.ID).PutPosition = dragObject.PutPosition;
+                    }
                     channel.TileMoved(dragObject.ID, dragObject.PutPosition);
                 }
-
+                else
+                {
+                    ListOfTiles.Find(tile => tile.ID == dragObject.ID).PutPosition = dragObject.PutPosition;
+                }
             }
         }
         //don't allow to have both paint and delete checked

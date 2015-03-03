@@ -5,7 +5,7 @@
     <Grid>
         <Menu Name="Menu" IsMainMenu="True" Height="25" Width="1280" VerticalAlignment="Top" BorderThickness="0">
             <MenuItem Header="File">
-                <MenuItem Header="Map">
+                <MenuItem Header="Map" Name="MenuMapOptions">
                     <MenuItem Header="New" Click="CreateMapBtn" />
                     <MenuItem Header="Load" Click="LoadMap"/>
                     <MenuItem Header="Save" Click="SaveMap"/>
