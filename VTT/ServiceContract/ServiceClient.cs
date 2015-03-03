@@ -10,7 +10,7 @@ namespace VTT
         public string Name { get; private set; }
         private RichTextBox rtb;
         public PlayerType PT { get; private set; }
-
+        
         //for map
         private int TILE_WIDTH;
         private int TILE_HEIGHT;
@@ -156,6 +156,11 @@ namespace VTT
                     }
                 }
             }
+        }
+
+        public void ReceiveMapToSave(List<TileToTransfer> map)
+        {
+            window.SetListOfTiles(map);
         }
         #endregion
     }

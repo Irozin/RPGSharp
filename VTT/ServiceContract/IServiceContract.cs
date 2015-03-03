@@ -27,6 +27,8 @@ namespace VTT
         void CharSheetChanged(int ID, CharacterSheet cs);
         [OperationContract(IsOneWay = true)]
         void ChangeMap();
+        [OperationContract(IsOneWay = true)]
+        void RequestMapToSave();
     }
     
     public interface IServiceContractCallback
@@ -43,5 +45,7 @@ namespace VTT
         void ClientTileDeleted(int ID);
         [OperationContract(IsOneWay = true)]
         void ClientCharSheetChanged(int ID, CharacterSheet cs);
+        [OperationContract(IsOneWay = true)]
+        void ReceiveMapToSave(List<TileToTransfer> map);
     }
 }

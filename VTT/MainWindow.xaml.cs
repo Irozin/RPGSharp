@@ -312,6 +312,12 @@ namespace VTT
             MAP_HEIGHT = mapH;
             MAP_WIDTH = mapW;
         }
+        //get map from server
+        public void RequestMapToSave()
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<IServiceContractCallback>();
+            callback.ReceiveMapToSave(ListOfTiles);
+        }
 
         public void ChangeMap()
         {
@@ -573,6 +579,10 @@ namespace VTT
 
         private void SaveMap(object sender, RoutedEventArgs e)
         {
+            if (server != null)
+            {
+                channel.RequestMapToSave();
+            }
             if (ListOfTiles.Count > 0)
             {
                 MapInfo mapInfo = new MapInfo();
