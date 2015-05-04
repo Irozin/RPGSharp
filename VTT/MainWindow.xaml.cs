@@ -217,7 +217,7 @@ namespace VTT
                 var callback = OperationContext.Current.GetCallbackChannel<IServiceContractCallback>();
                 if (!clients.Contains(callback))
                 {
-                    clients.Add(callback);    
+                    clients.Add(callback);
                 }
             }
             catch (Exception exc)
@@ -347,7 +347,7 @@ namespace VTT
             if (channel != null)
                 channel.SendMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
             SetHostPlayerOptions();
-            serviceClient.HostSetTileSizes(TILE_HEIGHT, TILE_WIDTH);
+            serviceClient.HostSetTileMapSizes(TILE_HEIGHT, TILE_WIDTH, MAP_HEIGHT, MAP_WIDTH);
         }
         
         private void StopHosting(object sender, RoutedEventArgs e)
@@ -517,104 +517,6 @@ namespace VTT
             ImageTile.ResetID();
             //InitializeCanvas();
             SetCanvas();
-        }
-
-        private void SaveCharacterSheetBTN(object sender, RoutedEventArgs e)
-        {
-            CharacterSheet temp = SaveCharSheetValues();
-            if (temp != null)
-            {
-                tokenSheet.CharSheet = temp;
-                ListOfTiles.First(t => t.ID == tokenSheet.ID).CharSheet = temp;
-                if (server != null)
-                {
-                    channel.CharSheetChanged(tokenSheet.ID, tokenSheet.CharSheet);
-                }
-            }
-        }
-
-        public CharacterSheet SaveCharSheetValues()
-        {
-            CharacterSheet cs = new CharacterSheet();
-            try
-            {
-                cs.Name = CharName.Text;
-                cs.ArmorClass = int.Parse(CharAC.Text);
-                cs.HP = int.Parse(CharHP.Text);
-                cs.Initiative = int.Parse(CharInitiative.Text);
-                cs.LayerMode = CharSheetLayer.SelectedItem.ToString();
-            }
-            catch
-            {
-                MessageBox.Show("Cannot save character's sheet");
-                cs = null;
-            }
-            return cs;
-        }
-
-        public void DisplayCharSheet(CharacterSheet cs, ImageSource portait)
-        {
-            CharPortrait.Source = portait;
-            CharName.Text = cs.Name.ToString();
-            CharHP.Text = cs.HP.ToString();
-            CharAC.Text = cs.ArmorClass.ToString();
-            CharInitiative.Text = cs.Initiative.ToString();
-            CharSheetLayer.Text = cs.LayerMode;
-        }
-
-        public void CharSheetChanged(int ID, CharacterSheet cs)
-        {
-            clients.ForEach(delegate(IServiceContractCallback c)
-            {
-                if (((ICommunicationObject)c).State == CommunicationState.Opened)
-                {
-                    c.ClientCharSheetChanged(ID, cs);
-                }
-                else
-                {
-                    clients.Remove(c);
-                }
-            });
-        }
-
-        private void SaveMap(object sender, RoutedEventArgs e)
-        {
-            if (server != null)
-            {
-                channel.RequestMapToSave();
-            }
-            if (ListOfTiles.Count > 0)
-            {
-                MapInfo mapInfo = new MapInfo();
-                mapInfo.gameMap = ListOfTiles;
-                mapInfo.tileHeight = TILE_HEIGHT;
-                mapInfo.tileWidth = TILE_WIDTH;
-                mapInfo.mapHeight = MAP_HEIGHT;
-                mapInfo.mapWidth = MAP_WIDTH;
-                MapSaveLoad.SaveMap(mapInfo);
-            }
-            else
-            {
-                MessageBox.Show("You have to make map first.");
-            }
-        }
-
-        private void LoadMap(object sender, RoutedEventArgs e)
-        {
-            MapSaveLoad.LoadMap(this);
-            if (server != null)
-            {
-                channel.SendMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
-                channel.ChangeMap();
-            }
-            else
-            {
-                foreach (var tile in ListOfTiles)
-                {
-                    AddTileOrTokenDeserialize(tile);
-                }
-            }
-            ImageTile.SetID(ListOfTiles[ListOfTiles.Count - 1].ID);
         }
         #endregion
 
@@ -878,6 +780,123 @@ namespace VTT
                 }
             }
         }
+        private void SaveCharacterSheetBTN(object sender, RoutedEventArgs e)
+        {
+            CharacterSheet temp = SaveCharSheetValues();
+            if (temp != null)
+            {
+                tokenSheet.CharSheet = temp;
+                ListOfTiles.First(t => t.ID == tokenSheet.ID).CharSheet = temp;
+                if (server != null)
+                {
+                    channel.CharSheetChanged(tokenSheet.ID, tokenSheet.CharSheet);
+                }
+            }
+        }
+
+        public CharacterSheet SaveCharSheetValues()
+        {
+            CharacterSheet cs = new CharacterSheet();
+            try
+            {
+                cs.Name = CharName.Text;
+                cs.ArmorClass = int.Parse(CharAC.Text);
+                cs.HP = int.Parse(CharHP.Text);
+                cs.Initiative = int.Parse(CharInitiative.Text);
+                cs.LayerMode = CharSheetLayer.SelectedItem.ToString();
+            }
+            catch
+            {
+                MessageBox.Show("Cannot save character's sheet");
+                cs = null;
+            }
+            return cs;
+        }
+
+        public void DisplayCharSheet(CharacterSheet cs, ImageSource portait)
+        {
+            CharPortrait.Source = portait;
+            CharName.Text = cs.Name.ToString();
+            CharHP.Text = cs.HP.ToString();
+            CharAC.Text = cs.ArmorClass.ToString();
+            CharInitiative.Text = cs.Initiative.ToString();
+            CharSheetLayer.Text = cs.LayerMode;
+        }
+
+        public void CharSheetChanged(int ID, CharacterSheet cs)
+        {
+            clients.ForEach(delegate(IServiceContractCallback c)
+            {
+                if (((ICommunicationObject)c).State == CommunicationState.Opened)
+                {
+                    c.ClientCharSheetChanged(ID, cs);
+                }
+                else
+                {
+                    clients.Remove(c);
+                }
+            });
+        }
+        /// <summary>
+        /// Request map to save from server if server is up or save map
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveMap(object sender, RoutedEventArgs e)
+        {
+            if (server != null)
+            {
+                channel.RequestMapToSave();
+            }
+            else
+            {
+                MainWindow.SaveMap(ListOfTiles, TILE_HEIGHT, TILE_WIDTH, MAP_HEIGHT, MAP_WIDTH);
+            }
+        }
+        /// <summary>
+        /// Save map to file
+        /// </summary>
+        /// <param name="ListOfTiles"></param>
+        /// <param name="TILE_HEIGHT"></param>
+        /// <param name="TILE_WIDTH"></param>
+        /// <param name="MAP_HEIGHT"></param>
+        /// <param name="MAP_WIDTH"></param>
+        public static void SaveMap(List<TileToTransfer> ListOfTiles, int TILE_HEIGHT, int TILE_WIDTH,
+            int MAP_HEIGHT, int MAP_WIDTH)
+        {
+            if (ListOfTiles.Count > 0)
+            {
+                MapInfo mapInfo = new MapInfo();
+                mapInfo.gameMap = ListOfTiles;
+                mapInfo.tileHeight = TILE_HEIGHT;
+                mapInfo.tileWidth = TILE_WIDTH;
+                mapInfo.mapHeight = MAP_HEIGHT;
+                mapInfo.mapWidth = MAP_WIDTH;
+                MapSaveLoad.SaveMap(mapInfo);
+            }
+            else
+            {
+                MessageBox.Show("You have to make map first.");
+            }
+        }
+
+        private void LoadMap(object sender, RoutedEventArgs e)
+        {
+            MapSaveLoad.LoadMap(this);
+            if (server != null)
+            {
+                channel.SendMap(ListOfTiles, MAP_HEIGHT, MAP_WIDTH, TILE_HEIGHT, TILE_WIDTH);
+                channel.ChangeMap();
+            }
+            else
+            {
+                foreach (var tile in ListOfTiles)
+                {
+                    AddTileOrTokenDeserialize(tile);
+                }
+            }
+            ImageTile.SetID(ListOfTiles[ListOfTiles.Count - 1].ID);
+        }
         //don't allow to have both paint and delete checked
         private void paintCheck_Checked(object sender, RoutedEventArgs e)
         {
@@ -897,11 +916,6 @@ namespace VTT
         private void tileCB_Checked(object sender, RoutedEventArgs e)
         {
             tokenCB.IsChecked = false;
-        }
-
-        private void CharSheetSaveBTN_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
         #endregion

@@ -14,6 +14,8 @@ namespace VTT
         //for map
         private int TILE_WIDTH;
         private int TILE_HEIGHT;
+        private int MAP_HEIGHT;
+        private int MAP_WIDTH;
         private MainWindow window;
 
         public ServiceClient(string name, RichTextBox rtb, PlayerType pt, MainWindow window)
@@ -29,10 +31,12 @@ namespace VTT
             Player
         }
         
-        public void HostSetTileSizes(int Height, int Width)
+        public void HostSetTileMapSizes(int TILE_HEIGHT, int TILE_WIDTH, int MAP_HEIGHT, int MAP_WIDTH)
         {
-            TILE_HEIGHT = Height;
-            TILE_WIDTH = Width;
+            this.TILE_HEIGHT = TILE_HEIGHT;
+            this.TILE_WIDTH = TILE_WIDTH;
+            this.MAP_HEIGHT = MAP_HEIGHT;
+            this.MAP_WIDTH = MAP_WIDTH;
         }
 
         #region IServiceContractCallback members
@@ -45,7 +49,10 @@ namespace VTT
         {
             TILE_HEIGHT = tileH;
             TILE_WIDTH = tileW;
+            MAP_HEIGHT = mapH;
+            MAP_WIDTH = mapW;
             window.CreateMap(tileW, tileH, mapH, mapW);
+            window.SetListOfTiles(map);
             foreach (var t in map)
             {
                 ClientTileAdded(t);
@@ -157,10 +164,14 @@ namespace VTT
                 }
             }
         }
-
+        /// <summary>
+        /// Download map from server and save it to file
+        /// </summary>
+        /// <param name="map"></param>
         public void ReceiveMapToSave(List<TileToTransfer> map)
         {
             window.SetListOfTiles(map);
+            MainWindow.SaveMap(map, TILE_HEIGHT, TILE_WIDTH, MAP_HEIGHT, MAP_WIDTH);
         }
         #endregion
     }
